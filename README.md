@@ -4,13 +4,15 @@ Android-App zur Planung von Kursanmeldungen in
 [VeniceBeach Fitness](https://play.google.com/store/apps/details?id=com.actinate.venicebeach)
 (`com.actinate.venicebeach`). Unabhängiges Projekt, keine offizielle VeniceBeach-App.
 
-**Stand 0.14: Kursplanung mit automatischer Anmeldung und Erinnerungen.**
+**Stand 0.14.1: Kursplanung mit automatischer Anmeldung und Erinnerungen.**
 Die Startseite zeigt die Kursauswahl, deine geplanten Kurse und verständliche Anmeldestatus.
 Einrichtung, Kalenderpositionen und weiterführende Hinweise liegen unter **„Einstellungen & Hilfe“**.
 Technische Diagnosen sind bei Bedarf in den Kursdetails verfügbar.
 Die Kursübernahme überspringt dekorative Emojis, Symbolschriftzeichen und Bildbeschreibungen.
+Haus-/Standortsymbole und trennende Kommas am Anfang werden auch dann entfernt, wenn sie mit
+dem Studionamen in derselben Beschriftung stehen. Satzzeichen innerhalb des Namens bleiben erhalten.
 Nicht lesbare Namen bleiben leer und müssen ergänzt werden; die erkannten Zeitangaben bleiben erhalten.
-Die APK liegt unter `releases/kursfenster-0.14.0-debug.apk`. Die installierte Version steht im
+Die APK liegt unter `downloads/kursfenster-0.14.1-debug.apk`. Die installierte Version steht im
 Seitenfuß sowie unter Einstellungen und wird automatisch in die Diagnose übernommen.
 Die Bedienung ist automatisiert und anhand nativer Android-Vorschauen geprüft; die neue
 Übernahme muss mit der tatsächlichen VeniceBeach-Oberfläche auf dem Gerät bestätigt werden.
@@ -18,10 +20,10 @@ Die Bedienung ist automatisiert und anhand nativer Android-Vorschauen geprüft; 
 
 ## Android-App herunterladen
 
-Die aktuelle installierbare Version ist **Kursfenster 0.14.0**:
+Die aktuelle installierbare Version ist **Kursfenster 0.14.1**:
 
-- [APK herunterladen](downloads/kursfenster-0.14.0-debug.apk)
-- [SHA-256-Prüfsumme](downloads/kursfenster-0.14.0-debug.apk.sha256)
+- [APK herunterladen](downloads/kursfenster-0.14.1-debug.apk)
+- [SHA-256-Prüfsumme](downloads/kursfenster-0.14.1-debug.apk.sha256)
 
 Auf GitHub die APK-Datei öffnen und über **Download raw file** herunterladen.
 Es handelt sich um die bisher getestete Debug-APK für Android, nicht um eine iOS-App.
@@ -238,7 +240,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 Minimum Android 8 (API 26), Zielversion Android 15 (API 35).
 APK: `app/build/outputs/apk/debug/app-debug.apk`.
-Die zusätzliche Kopie `releases/kursfenster-0.14.0-debug.apk` trägt die Versionsnummer im Dateinamen.
+Die zusätzliche Kopie `downloads/kursfenster-0.14.1-debug.apk` trägt die Versionsnummer im Dateinamen.
 
 In dieser Cloud-Arbeitskopie:
 

@@ -19,6 +19,8 @@ final class CourseDraft {
         this.course=course; this.studio=studio; this.time=time; this.date=date;
     }
     private static final Pattern RANGE=Pattern.compile("(?i)^(?:(Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag|Sonntag)[, ]+)?(\\d{1,2}:\\d{2})\\s*[-–—]\\s*\\d{1,2}:\\d{2}$");
+    // Accessibility can combine the location icon, a separator and the studio name in one label.
+    private static final Pattern STUDIO_PREFIX=Pattern.compile("^[\\s\\p{Z},\\p{So}\\p{Sk}\\p{Co}\\uFE0E\\uFE0F\\u200D]+");
     private static final List<String> WEEKDAYS=Arrays.asList("montag","dienstag","mittwoch","donnerstag","freitag","samstag","sonntag");
     private static final class Label {
         final String text; final Rect bounds;
@@ -48,7 +50,7 @@ final class CourseDraft {
             if(usable(text)) { name=text; break; }
         }
         for(int i=timeIndex+1;i<labels.size();i++) {
-            String text=labels.get(i).text;
+            String text=STUDIO_PREFIX.matcher(labels.get(i).text).replaceFirst("");
             if(text.equalsIgnoreCase("Beschreibung")) break;
             if(usable(text)) { studio=text; break; }
         }

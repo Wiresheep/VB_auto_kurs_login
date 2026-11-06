@@ -98,6 +98,26 @@ public class CourseDraftTest {
         var draft=CourseDraft.read(root,null);
         assertEquals("Yoga",draft.course); assertEquals("VeniceBeach Grünstadt",draft.studio);
     }
+    @Test public void studioImportRemovesLeadingHouseAndCommaFromCombinedLabels() {
+        for(String studio:new String[]{"🏠, VeniceBeach Grünstadt","🏠️,\u00a0VeniceBeach Grünstadt",
+                "🏡 , , VeniceBeach Grünstadt","\uf3c5, VeniceBeach Grünstadt"}) {
+            var draft=CourseDraft.read(screen("Yoga","08:15 - 09:45",studio,"Beschreibung","Im Studio teilnehmen"),null);
+            assertEquals("VeniceBeach Grünstadt",draft.studio);
+        }
+    }
+    @Test public void studioImportCleansCombinedAccessibilityDescription() {
+        var root=screen("Yoga","08:15 - 09:45");
+        var studio=AccessibilityNodeInfo.obtain(); studio.setVisibleToUser(true);
+        studio.setContentDescription("🏠, VeniceBeach Grünstadt"); shadowOf(root).addChild(studio);
+        var footer=screen("Beschreibung","Im Studio teilnehmen");
+        for(int i=0;i<footer.getChildCount();i++) shadowOf(root).addChild(footer.getChild(i));
+        assertEquals("VeniceBeach Grünstadt",CourseDraft.read(root,null).studio);
+    }
+    @Test public void studioImportSkipsDecorationsAndPreservesPunctuationInsideTheName() {
+        var draft=CourseDraft.read(screen("Yoga 🧘","08:15 - 09:45","🏠,","Fit & Fun, Studio 2 (Süd)",
+                "Beschreibung","Im Studio teilnehmen"),null);
+        assertEquals("Yoga 🧘",draft.course); assertEquals("Fit & Fun, Studio 2 (Süd)",draft.studio);
+    }
     @Test public void imageDescriptionsCannotOverrideVisibleCourseAndStudioText() {
         var root=screen("Yoga","😛","08:15 - 09:45","🍌","VeniceBeach Grünstadt","Beschreibung","Im Studio teilnehmen");
         var clock=root.getChild(1); clock.setText(null); clock.setClassName("android.widget.ImageView"); clock.setContentDescription("Leckendes Gesicht");
