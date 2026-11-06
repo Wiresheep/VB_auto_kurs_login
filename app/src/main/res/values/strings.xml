@@ -1,0 +1,18 @@
+<resources>
+    <string name="accessibility_description">Die Buchungsassistenz liest ausschließlich die Oberfläche von VeniceBeach und bedient sie für ausdrücklich geplante Kurse. Sie benötigt ein entsperrtes, eingeschaltetes Gerät und eine bestehende Anmeldung. Bei uneindeutigen Daten wird abgebrochen. Die tatsächliche Anmeldung muss in VeniceBeach kontrolliert werden. Für die Tagesbestätigung kann das Kalenderbild kurz im Arbeitsspeicher geprüft werden. Es werden keine Bilder gespeichert oder Bildschirmdaten übertragen.</string>
+    <string name="automatic_option">Automatisch anmelden</string>
+    <string name="time_label">%1$s Uhr</string>
+    <string name="picker_capture">Kurs übernehmen</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="date_review_label">Datum auswählen · %1$s</string>
+    <string name="form_new_title">Kurs planen</string>
+    <string name="form_edit_title">Kurs bearbeiten</string>
+    <string name="save_plan">Plan speichern</string>
+    <string name="save_changes">Änderungen speichern</string>
+    <string name="import_review_hint">Bitte die fehlenden Angaben ergänzen und den Kurs prüfen.</string>
+    <string name="missing_fields_hint">Bitte die markierten Felder ergänzen.</string>
+    <string name="choose_import_date_hint">Bitte das Datum auswählen. Die Kursdaten wurden bereits übernommen.</string>
+    <string name="check_date_time_hint">Bitte Datum und Uhrzeit prüfen.</string>
+    <string name="wait_for_unlock">Beim Entsperren nachholen</string>
+    <string name="automatic_open">VeniceBeach automatisch öffnen</string>
+</resources>
