@@ -4,7 +4,7 @@ Android-App zur Planung von Kursanmeldungen in
 [VeniceBeach Fitness](https://play.google.com/store/apps/details?id=com.actinate.venicebeach)
 (`com.actinate.venicebeach`). Unabhängiges Projekt, keine offizielle VeniceBeach-App.
 
-**Stand 0.14.1: Kursplanung mit automatischer Anmeldung und Erinnerungen.**
+**Stand 0.14.2: Kursplanung mit automatischer Anmeldung und Erinnerungen.**
 Die Startseite zeigt die Kursauswahl, deine geplanten Kurse und verständliche Anmeldestatus.
 Einrichtung, Kalenderpositionen und weiterführende Hinweise liegen unter **„Einstellungen & Hilfe“**.
 Technische Diagnosen sind bei Bedarf in den Kursdetails verfügbar.
@@ -12,7 +12,7 @@ Die Kursübernahme überspringt dekorative Emojis, Symbolschriftzeichen und Bild
 Haus-/Standortsymbole und trennende Kommas am Anfang werden auch dann entfernt, wenn sie mit
 dem Studionamen in derselben Beschriftung stehen. Satzzeichen innerhalb des Namens bleiben erhalten.
 Nicht lesbare Namen bleiben leer und müssen ergänzt werden; die erkannten Zeitangaben bleiben erhalten.
-Die APK liegt unter `downloads/kursfenster-0.14.1-debug.apk`. Die installierte Version steht im
+Die APK liegt unter `downloads/kursfenster-0.14.2-debug.apk`. Die installierte Version steht im
 Seitenfuß sowie unter Einstellungen und wird automatisch in die Diagnose übernommen.
 Die Bedienung ist automatisiert und anhand nativer Android-Vorschauen geprüft; die neue
 Übernahme muss mit der tatsächlichen VeniceBeach-Oberfläche auf dem Gerät bestätigt werden.
@@ -20,10 +20,10 @@ Die Bedienung ist automatisiert und anhand nativer Android-Vorschauen geprüft; 
 
 ## Android-App herunterladen
 
-Die aktuelle installierbare Version ist **Kursfenster 0.14.1**:
+Die aktuelle installierbare Version ist **Kursfenster 0.14.2**:
 
-- [APK herunterladen](downloads/kursfenster-0.14.1-debug.apk)
-- [SHA-256-Prüfsumme](downloads/kursfenster-0.14.1-debug.apk.sha256)
+- [APK herunterladen](downloads/kursfenster-0.14.2-debug.apk)
+- [SHA-256-Prüfsumme](downloads/kursfenster-0.14.2-debug.apk.sha256)
 
 Auf GitHub die APK-Datei öffnen und über **Download raw file** herunterladen.
 Es handelt sich um die bisher getestete Debug-APK für Android, nicht um eine iOS-App.
@@ -75,6 +75,10 @@ nicht als neue Anmeldung wiederholt.
 
 Wartende Pläne bleiben nach Prozessneustart und Boot erhalten. Das Entsperr-Ereignis wird vom
 aktiven Buchungshelfer empfangen; beim erneuten Verbinden werden wartende Pläne ebenfalls geprüft.
+Ab Android 13 nimmt der Empfänger die drei geschützten Systemsignale für Entsperren und
+Bildschirmwechsel auch von der SystemUI mit eigener UID an (`RECEIVER_EXPORTED`).
+Andere Aktionen werden nicht registriert. Nach einem Entsperr-/Einschaltsignal wird der echte
+Sperr- und Bildschirmstatus bis zu fünf Sekunden erneut geprüft; Bildschirm aus beendet die Prüfung.
 Ein bloßes Einschalten des noch gesperrten Bildschirms startet keine Buchung. Bereits begonnene
 Kurse werden verworfen. Bei mehreren wartenden Kursen wird nacheinander gebucht. Der Wechsel
 auf einen manuellen Start pausiert noch nicht abgesendete Versuche; ein bereits gesendeter Klick
@@ -83,7 +87,31 @@ bleibt zur Prüfung markiert und wird beim Entsperren niemals erneut ausgeführt
 Der Buchungshelfer muss aktiviert bleiben. „Stopp erzwingen“, ein ausgeschaltetes Gerät oder
 herstellerspezifische Energiesparregeln können Android-Ereignisse verhindern. Ohne erreichbaren
 Buchungshelfer sind „Jetzt anmelden“ und das Öffnen von Kursfenster die Rückfallebene. Der Ablauf
-ist unter simuliertem Android 12 geprüft und muss zusätzlich auf dem S10+ getestet werden.
+ist unter simuliertem Android 12 und 15 geprüft; Android 17 / LineageOS 24.0 muss auf dem Gerät
+zusätzlich getestet werden.
+
+### Zusätzliche App-Start-Freigabe auf neueren Android-Versionen
+
+Falls VeniceBeach nach dem Entsperren weiterhin erst durch Antippen startet:
+
+1. **Einstellungen & Hilfe → App-Start nach Entsperren freigeben** öffnen.
+2. In Android **Über anderen Apps einblenden** für **Kursfenster** erlauben.
+3. Zu Kursfenster zurückkehren. Beide Schalter für Nachholen und automatisches Öffnen einschalten.
+4. Einen bereits bereitstehenden Plan über **Jetzt anmelden** starten. Danach einen neuen
+   Anmeldestart bei gesperrtem Handy prüfen und nur entsperren, ohne die Benachrichtigung anzutippen.
+
+Diese freiwillige Freigabe (`SYSTEM_ALERT_WINDOW`) ist eine dokumentierte Android-Ausnahme
+für App-Starts aus dem Hintergrund. Für den Start wird kein zusätzliches Overlay angezeigt.
+Der ausgeschaltete Schalter **VeniceBeach automatisch öffnen** bleibt auch mit Freigabe wirksam.
+Die Freigabe entsperrt das Gerät nicht und ersetzt keine laufende Buchungsassistenz.
+
+Ein Startaufruf wird nicht mehr als sichtbarer App-Start vorausgesetzt: Wird zwölf Sekunden lang
+weder ein VeniceBeach-Fenster noch ein zugehöriger Fensterwechsel erkannt, bleibt der Plan als
+**Anmeldung bereit** mit Diagnose und **Jetzt anmelden** erhalten. Es erfolgt keine automatische
+Startwiederholung. Bereits gesendete Buchungsklicks werden nicht erneut ausgeführt.
+
+Android-Dokumentation: [System-Broadcasts](https://developer.android.com/develop/background-work/background-tasks/broadcasts)
+und [App-Starts aus dem Hintergrund](https://developer.android.com/guide/components/activities/secure-bal).
 
 ## Aufbau der App
 
@@ -240,7 +268,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 Minimum Android 8 (API 26), Zielversion Android 15 (API 35).
 APK: `app/build/outputs/apk/debug/app-debug.apk`.
-Die zusätzliche Kopie `downloads/kursfenster-0.14.1-debug.apk` trägt die Versionsnummer im Dateinamen.
+Die zusätzliche Kopie `downloads/kursfenster-0.14.2-debug.apk` trägt die Versionsnummer im Dateinamen.
 
 In dieser Cloud-Arbeitskopie:
 
@@ -264,7 +292,9 @@ Emoji-/Bildbeschriftungen und das Bearbeiten eines Plans ohne zusätzliche Alarm
 Native Android-Vorschauen liegen nach dem Test unter `app/build/reports/ui-preview/`. Diese synthetischen Bedienungshilfe-Bäume
 ersetzen keinen erfolgreichen Gerätetest mit der tatsächlichen VeniceBeach-Oberfläche.
 
-Die Tests decken außerdem echte Entsperr-Broadcasts unter simuliertem Android 12, gesperrtes
+Die Tests decken außerdem Entsperr-Broadcasts unter simuliertem Android 12 und 15, die Freigabe
+des SystemUI-Empfangs, verzögerte Sperrstatus-Änderungen, abgebrochene Entsperrprüfungen,
+stumm abgewiesene App-Starts, die freiwillige Android-Freigabe sowie gesperrtes
 Screen-On, den Benachrichtigungsstart, deaktivierte App-Wechsel, Ablauf vor Entsperren,
 Wiederherstellung und verspätete Gesten-Rückmeldungen nach erneutem Start desselben Plans ab.
 

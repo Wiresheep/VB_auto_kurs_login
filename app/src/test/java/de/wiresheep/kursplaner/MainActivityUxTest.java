@@ -65,4 +65,25 @@ public class MainActivityUxTest {
             assertNotNull(((EditText)activity.findViewById(1002)).getError()); assertNotNull(((EditText)activity.findViewById(1001)).getError());
         }
     }
+    @Test public void optionalAppStartPermissionOpensAndroidSettingsAndKeepsAutomaticOpeningOff() {
+        org.robolectric.shadows.ShadowSettings.setCanDrawOverlays(false);
+        BookingPreferences.automaticOpen(context,false);
+        try(var controller=Robolectric.buildActivity(MainActivity.class).setup()) {
+            var activity=controller.get(); button(activity.getWindow().getDecorView(),"Einstellungen & Hilfe").performClick();
+            var dialog=ShadowAlertDialog.getLatestAlertDialog();
+            button(dialog.getWindow().getDecorView(),"App-Start nach Entsperren freigeben").performClick();
+            var intent=shadowOf(context).getNextStartedActivity();
+            assertEquals(android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,intent.getAction());
+            assertEquals("package:"+context.getPackageName(),intent.getDataString());
+            assertFalse(android.provider.Settings.canDrawOverlays(context));
+            assertFalse(BookingPreferences.automaticOpen(context));
+        }
+    }
+    @Test public void grantedAppStartPermissionDoesNotAskForItAgain() {
+        org.robolectric.shadows.ShadowSettings.setCanDrawOverlays(true);
+        try(var controller=Robolectric.buildActivity(MainActivity.class).setup()) {
+            button(controller.get().getWindow().getDecorView(),"Einstellungen & Hilfe").performClick();
+            assertNull(button(ShadowAlertDialog.getLatestAlertDialog().getWindow().getDecorView(),"App-Start nach Entsperren freigeben"));
+        }
+    }
 }

@@ -66,6 +66,53 @@ public class UnlockBookingTest {
         context.sendBroadcast(new Intent(Intent.ACTION_USER_PRESENT)); shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(600));
         assertNull(shadowOf(context).getNextStartedActivity());
     }
+    @Test @Config(sdk=35) public void modernAndroidUnlockReceiverAcceptsSystemUiBroadcasts() {
+        enableHelper();
+        var receiver=shadowOf(context).getRegisteredReceivers().stream()
+                .filter(r -> r.intentFilter.hasAction(Intent.ACTION_USER_PRESENT)).findFirst().orElseThrow();
+        assertEquals(Context.RECEIVER_EXPORTED,receiver.flags);
+        assertEquals(3,receiver.intentFilter.countActions());
+        assertTrue(receiver.intentFilter.hasAction(Intent.ACTION_SCREEN_ON));
+        assertTrue(receiver.intentFilter.hasAction(Intent.ACTION_SCREEN_OFF));
+    }
+    @Test @Config(sdk={31,35}) public void delayedKeyguardReleaseIsDetectedWithoutOpeningKursfenster() {
+        enableHelper(); BookingPreferences.waitForUnlock(context,true); locked(true); CoursePlan plan=plan(3600); alarm(plan);
+        context.sendBroadcast(new Intent(Intent.ACTION_USER_PRESENT));
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(1200));
+        assertEquals(CoursePlan.Status.WAITING_UNLOCK,store.find(plan.id).status);
+        locked(false); shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(1000));
+        assertEquals(CoursePlan.Status.AUTOMATING,store.find(plan.id).status);
+        assertNotNull(shadowOf(context).getNextStartedActivity());
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(4));
+        assertNull(shadowOf(context).getNextStartedActivity());
+    }
+    @Test public void screenOffCancelsPendingUnlockChecks() {
+        enableHelper(); BookingPreferences.waitForUnlock(context,true); locked(true); CoursePlan plan=plan(3600); alarm(plan);
+        context.sendBroadcast(new Intent(Intent.ACTION_USER_PRESENT)); shadowOf(Looper.getMainLooper()).idle();
+        context.sendBroadcast(new Intent(Intent.ACTION_SCREEN_OFF)); shadowOf(Looper.getMainLooper()).idle();
+        locked(false); shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(6));
+        assertEquals(CoursePlan.Status.WAITING_UNLOCK,store.find(plan.id).status);
+        assertNull(shadowOf(context).getNextStartedActivity());
+    }
+    @Test public void silentlyBlockedLaunchReturnsToExplicitStartWithoutRetryingOnUnlock() {
+        enableHelper(); BookingPreferences.waitForUnlock(context,true); CoursePlan plan=plan(3600); alarm(plan);
+        assertNotNull(shadowOf(context).getNextStartedActivity());
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(14));
+        assertEquals(CoursePlan.Status.WAITING_USER,store.find(plan.id).status);
+        assertFalse(BookingAccessibilityService.running(plan.id));
+        assertTrue(store.diagnostic(plan.id).contains("nicht im Vordergrund"));
+        unlockEvent(); assertNull(shadowOf(context).getNextStartedActivity());
+        BookingDispatcher.dispatch(context,plan.id,true);
+        assertEquals(CoursePlan.Status.AUTOMATING,store.find(plan.id).status);
+        assertNotNull(shadowOf(context).getNextStartedActivity());
+    }
+    @Test public void observedVeniceBeachWindowDoesNotCountAsABlockedLaunch() {
+        enableHelper(); CoursePlan plan=plan(3600); alarm(plan);
+        var event=android.view.accessibility.AccessibilityEvent.obtain(android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
+        event.setPackageName(VeniceBeach.PACKAGE); service.get().onAccessibilityEvent(event);
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(14));
+        assertEquals(CoursePlan.Status.AUTOMATING,store.find(plan.id).status);
+    }
     @Test public void screenOnWhileStillLockedCannotStartBooking() {
         enableHelper(); BookingPreferences.waitForUnlock(context,true); locked(true); CoursePlan plan=plan(3600); alarm(plan);
         shadowOf(context.getSystemService(PowerManager.class)).setIsInteractive(true);

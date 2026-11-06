@@ -39,6 +39,8 @@ public final class BookingAccessibilityService extends AccessibilityService {
     private boolean homeTabRequested;
     private int homeBacks;
     private long nextHomeActionAt,homeStartedAt;
+    private boolean launchObserved;
+    private static final long APP_START_TIMEOUT_MS=12000;
     private java.time.LocalDate verifiedDate;
     private long deadline,attemptGeneration;
     private long dateClickedAt;
@@ -60,10 +62,22 @@ public final class BookingAccessibilityService extends AccessibilityService {
     private String previousViewport;
     private final Runnable step = this::advance;
     private boolean screenReceiverRegistered;
+    private int unlockChecksRemaining;
+    private final Runnable unlockCheck=new Runnable() {
+        @Override public void run() {
+            if(connected!=BookingAccessibilityService.this) return;
+            if(deviceReady()) { BookingDispatcher.resumeAfterUnlock(BookingAccessibilityService.this); return; }
+            if(--unlockChecksRemaining>0) handler.postDelayed(this,500);
+        }
+    };
     private final BroadcastReceiver screenReceiver=new BroadcastReceiver() {
         @Override public void onReceive(Context context,Intent intent) {
-            if(Intent.ACTION_USER_PRESENT.equals(intent.getAction()) || Intent.ACTION_SCREEN_ON.equals(intent.getAction())) handler.postDelayed(() -> { if(connected==BookingAccessibilityService.this) BookingDispatcher.resumeAfterUnlock(BookingAccessibilityService.this); },500);
-            else if(Intent.ACTION_SCREEN_OFF.equals(intent.getAction()) && active!=null && BookingPreferences.waitForUnlock(BookingAccessibilityService.this)) pauseForUnlock();
+            if(Intent.ACTION_USER_PRESENT.equals(intent.getAction()) || Intent.ACTION_SCREEN_ON.equals(intent.getAction())) {
+                handler.removeCallbacks(unlockCheck); unlockChecksRemaining=10; handler.postDelayed(unlockCheck,500);
+            } else if(Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
+                handler.removeCallbacks(unlockCheck);
+                if(active!=null && BookingPreferences.waitForUnlock(BookingAccessibilityService.this)) pauseForUnlock();
+            }
         }
     };
     public static boolean running(String id) {
@@ -103,6 +117,7 @@ public final class BookingAccessibilityService extends AccessibilityService {
             }
             attemptGeneration++;
             active = plan; stage = Stage.PREPARE_HOME; homeTabRequested=false; homeBacks=0; nextHomeActionAt=0; homeStartedAt=SystemClock.elapsedRealtime(); studioTabOpened = false; backFromDetailsSent = false; verifiedDate = null;
+            launchObserved=false;
             report("VeniceBeach mit neuem App-Task starten. Startansicht vorbereiten.");
             dateClickedAt = 0; dateTapPending = false; dateGestureUsed = false; calibratedDateTap = false; dateInputHint = "";
             dayImagePending = false; dayImageChecked = false; dayImageConfirmed = false; dayImageFailure = "";
@@ -130,7 +145,9 @@ public final class BookingAccessibilityService extends AccessibilityService {
         connected=this;
         if(!screenReceiverRegistered) {
             IntentFilter filter=new IntentFilter(Intent.ACTION_USER_PRESENT); filter.addAction(Intent.ACTION_SCREEN_OFF); filter.addAction(Intent.ACTION_SCREEN_ON);
-            if(Build.VERSION.SDK_INT>=33) registerReceiver(screenReceiver,filter,Context.RECEIVER_NOT_EXPORTED);
+            // These three actions are protected system broadcasts. USER_PRESENT can originate
+            // from SystemUI's separate UID, which RECEIVER_NOT_EXPORTED excludes on modern Android.
+            if(Build.VERSION.SDK_INT>=33) registerReceiver(screenReceiver,filter,Context.RECEIVER_EXPORTED);
             else registerReceiver(screenReceiver,filter);
             screenReceiverRegistered=true;
         }
@@ -166,6 +183,7 @@ public final class BookingAccessibilityService extends AccessibilityService {
         }
         // Continuous content/scroll events must not postpone the polling loop forever.
         if (active != null && event.getEventType()==AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            if(VeniceBeach.PACKAGE.contentEquals(event.getPackageName()==null ? "" : event.getPackageName())) launchObserved=true;
             handler.removeCallbacks(step); handler.postDelayed(step,100);
         }
     }
@@ -176,8 +194,9 @@ public final class BookingAccessibilityService extends AccessibilityService {
             Toast.makeText(this,"Darstellung geändert. Bitte die Kalenderleiste erneut einrichten.",Toast.LENGTH_LONG).show();
         }
     }
-    @Override public void onInterrupt() { dismissCalibration(); cancelPicker(); stopAll(); }
+    @Override public void onInterrupt() { handler.removeCallbacks(unlockCheck); dismissCalibration(); cancelPicker(); stopAll(); }
     @Override public void onDestroy() {
+        handler.removeCallbacks(unlockCheck);
         if(screenReceiverRegistered) { unregisterReceiver(screenReceiver); screenReceiverRegistered=false; }
         dismissCalibration(); cancelPicker(); stopAll(); if (connected==this) connected=null; super.onDestroy(); }
     private void finish(boolean confirmed) {
@@ -212,8 +231,14 @@ public final class BookingAccessibilityService extends AccessibilityService {
         if (SystemClock.elapsedRealtime()>deadline || active.isExpired(java.time.Instant.now()) || !deviceReady()) { finish(false); return; }
         AccessibilityNodeInfo root=getRootInActiveWindow();
         if (root==null || !VeniceBeach.PACKAGE.contentEquals(root.getPackageName()==null ? "" : root.getPackageName())) {
+            // startActivity can return normally even when Android blocks the background launch.
+            if(!launchObserved && SystemClock.elapsedRealtime()-homeStartedAt>=APP_START_TIMEOUT_MS) {
+                BookingDispatcher.waitForUser(this,saved,VeniceBeach.backgroundStartHint(this));
+                finish(false); return;
+            }
             handler.postDelayed(step,800); return;
         }
+        launchObserved=true;
         processScreen(root);
         if (active != null) {
             handler.removeCallbacks(step); handler.postDelayed(step,800);

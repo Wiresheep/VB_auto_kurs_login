@@ -172,6 +172,16 @@ public final class MainActivity extends Activity {
         opening.setOnCheckedChangeListener((view,checked) -> {
             BookingPreferences.automaticOpen(this,checked); BookingDispatcher.policyChanged(this); renderPlans(); renderSetup(); updateBookingHint();
         });
+        if(Build.VERSION.SDK_INT>=29) {
+            body.addView(text("App-Start nach dem Entsperren",18,INK,true));
+            body.addView(text(Settings.canDrawOverlays(this) ? "Die zusätzliche Android-Freigabe für den App-Start ist aktiv."
+                    : "Falls VeniceBeach erst nach einem Tippen auf die Benachrichtigung startet, kannst du die zusätzliche Android-Freigabe erlauben. Android nennt sie Über anderen Apps einblenden. Sie erlaubt den App-Start aus dem Hintergrund. Dafür zeigt Kursfenster kein zusätzliches schwebendes Fenster an.",14,MUTED,false));
+            if(!Settings.canDrawOverlays(this)) button(body,"App-Start nach Entsperren freigeben",v -> {
+                dialog.dismiss();
+                try { startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,Uri.parse("package:"+getPackageName()))); }
+                catch(ActivityNotFoundException ex) { showError("Bitte in den Android-Einstellungen unter Spezieller App-Zugriff → Über anderen Apps einblenden Kursfenster freigeben."); }
+            });
+        }
         body.addView(text("Kalenderleiste",18,INK,true));
         body.addView(text(CalendarCalibration.available(this) ? "Die Tagespositionen sind eingerichtet." : "Einrichten, falls der Tageswechsel nicht funktioniert.",14,MUTED,false));
         button(body,"Kalenderleiste einrichten",v -> {
