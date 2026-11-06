@@ -1,0 +1,241 @@
+{
+  "tenant": "venicebeach",
+  "studios": {
+    "data": [
+      {
+        "id": 42,
+        "name": "Fit Base Heidelberg",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 64,
+        "name": "FitBase Bensheim",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 75,
+        "name": "FitBase Ludwigshafen",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 38,
+        "name": "FitBase Mannheim City E1",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 70,
+        "name": "FitBase Mannheim Käfertal",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 78,
+        "name": "FitBase Mannheim Neckarau",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 65,
+        "name": "FitBase Neustadt",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 13,
+        "name": "FitBase Speyer ",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 21,
+        "name": "FitBase Viernheim",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 67,
+        "name": "FitCamp Speyer",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 71,
+        "name": "VeniceBeach Bruchsal",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 73,
+        "name": "VeniceBeach Bruchsal Plus ",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 47,
+        "name": "VeniceBeach Frankenthal",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 77,
+        "name": "VeniceBeach Germersheim",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 74,
+        "name": "VeniceBeach Grünstadt",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 60,
+        "name": "VeniceBeach Haßloch",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 41,
+        "name": "VeniceBeach Heidelberg Bahnstadt",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 29,
+        "name": "VeniceBeach Heidelberg Carré Supreme",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 16,
+        "name": "VeniceBeach Heidelberg Pfaffengrund",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 80,
+        "name": "VeniceBeach Heidelberg West",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 69,
+        "name": "VeniceBeach Heppenheim",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 76,
+        "name": "VeniceBeach Karlsruhe Postgalerie Plus ",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 43,
+        "name": "VeniceBeach Karlsruhe Südstadt",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 7,
+        "name": "VeniceBeach Ketsch",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 59,
+        "name": "VeniceBeach Lady Bensheim",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 23,
+        "name": "VeniceBeach Leimen",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 26,
+        "name": "VeniceBeach Mannheim Fahrlach Plus ",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 82,
+        "name": "VeniceBeach Mannheim Glückstein",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 84,
+        "name": "VeniceBeach Mannheim Käfertal",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 20,
+        "name": "VeniceBeach Mannheim Neckarau Plus ",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 72,
+        "name": "VeniceBeach Mannheim P7",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 83,
+        "name": "VeniceBeach Mannheim Wohlgelegen Plus",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 63,
+        "name": "VeniceBeach Sandhausen",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 51,
+        "name": "VeniceBeach Schriesheim",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 2,
+        "name": "VeniceBeach Schwetzingen",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 49,
+        "name": "VeniceBeach Sinsheim",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 8,
+        "name": "VeniceBeach Viernheim",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 68,
+        "name": "VeniceBeach Worms",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      },
+      {
+        "id": 1001,
+        "name": "Via Vital Schwetzingen Plus",
+        "enableCourses": true,
+        "enableCourseJoin": true
+      }
+    ]
+  }
+}

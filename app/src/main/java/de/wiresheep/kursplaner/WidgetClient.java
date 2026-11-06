@@ -12,6 +12,35 @@ final class WidgetClient implements WebBookingEngine.Gateway {
     static final String ORIGIN="https://widget.actinate.com";
     static final String TENANT="venicebeach";
     static final int GRUENSTADT=74;
+    private static final String WIDGET_KEY="dQwvUoeuoACEFD2B";
+    static final class Studio {
+        final int id;
+        final String name;
+        Studio(int id,String name) {
+            if(id<=0 || name==null || name.trim().isEmpty() || name.trim().length()>120)
+                throw new IllegalArgumentException("Ungültiges Studio.");
+            this.id=id; this.name=name.trim();
+        }
+    }
+    List<Studio> studios() throws Exception {
+        return parseStudios(call("GET","/widgets/v1/classes/tenantInfo?key="+WIDGET_KEY
+                +"&courseCategoryFilterEnabled=0&courseTrainingGoalFilterEnabled=0&tenantLevelFilterEnabled=0&courseFilterEnabled=0",null));
+    }
+    static List<Studio> parseStudios(JSONObject response) throws JSONException {
+        if(!TENANT.equals(response.getString("tenant"))) throw new JSONException("Unbekannter Anbieter.");
+        JSONArray data=response.getJSONObject("studios").getJSONArray("data");
+        List<Studio> result=new ArrayList<>(); Set<Integer> ids=new HashSet<>();
+        for(int i=0;i<data.length();i++) {
+            JSONObject studio=data.getJSONObject(i);
+            if(!studio.optBoolean("enableCourses",false) || !studio.optBoolean("enableCourseJoin",false)) continue;
+            Studio entry=new Studio(studio.getInt("id"),studio.getString("name"));
+            if(!ids.add(entry.id)) throw new JSONException("Doppelte Studiokennung.");
+            result.add(entry);
+        }
+        java.text.Collator order=java.text.Collator.getInstance(Locale.GERMAN);
+        result.sort((a,b) -> order.compare(a.name,b.name));
+        return result;
+    }
     interface Transport { JSONObject request(String method,String path,String token,String body) throws Exception; }
     private final Transport transport;
     private String token;

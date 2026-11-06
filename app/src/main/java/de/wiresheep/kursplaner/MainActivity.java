@@ -160,7 +160,7 @@ public final class MainActivity extends Activity {
         ScrollView content=new ScrollView(this); LinearLayout body=column(); body.setPadding(dp(20),dp(8),dp(20),dp(20)); content.addView(body);
         AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Einstellungen & Hilfe").setView(content).setPositiveButton("Fertig",null).create();
         body.addView(text("Automatische Webbuchung",18,INK,true));
-        button(body,"Webzugang & Kursplan Grünstadt",v -> { dialog.dismiss(); startActivity(new Intent(this,WebBookingActivity.class)); });
+        button(body,"Webzugang & Kurspläne",v -> { dialog.dismiss(); startActivity(new Intent(this,WebBookingActivity.class)); });
         body.addView(text("Für Webpläne ist weder Entsperren noch der Buchungshelfer erforderlich. Die folgenden Einstellungen gelten für die bisherige App-Bedienung.",14,MUTED,false));
         body.addView(text("Automatische Anmeldung per App-Bedienung",18,INK,true));
         body.addView(text("VeniceBeach muss angemeldet sein. Zum Buchen wird die App kurz auf dem entsperrten Bildschirm bedient.",14,MUTED,false));
@@ -307,7 +307,7 @@ public final class MainActivity extends Activity {
         if(plan.isWeb() && !WebBookingService.running(id)) {
             if(plan.status==CoursePlan.Status.ACTION_REQUIRED) button(body,"Webanmeldung erneut versuchen",v -> { dialog.dismiss(); WebBookingService.start(this,id); });
             if(plan.status==CoursePlan.Status.VERIFY_REQUIRED) button(body,"Teilnahme im Web prüfen",v -> { dialog.dismiss(); WebBookingService.start(this,id); });
-            button(body,"Webkursplan öffnen",v -> startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse("https://www.venicebeach-fitness.de/clubs/venicebeach/gruenstadt.html#kursplan-info"))));
+            button(body,"Webkursplan öffnen",v -> startActivity(new Intent(this,WebBookingActivity.class).putExtra("studioId",plan.webStudioId).putExtra("studioName",plan.studio)));
         }
         button(body,"In VeniceBeach öffnen",v -> { dialog.dismiss(); openVenice(); });
         button(body,"Plan entfernen",v -> {

@@ -1,15 +1,17 @@
-# Webbuchung in Kursfenster 0.15.0
+# Webbuchung in Kursfenster 0.15.2
 
 Stand: 6. November 2026. Die Webintegration ist implementiert und mit simulierten
 Anbieterrückmeldungen getestet. Ein erfolgreicher Login und eine echte Buchung
-mit einem Mitgliedskonto stehen noch aus. Die öffentliche Kursabfrage Grünstadt
-wurde live erfolgreich abgerufen.
+mit einem Mitgliedskonto stehen noch aus. Die öffentliche Studioliste (derzeit
+39 Standorte) sowie Kursabfragen für Grünstadt und Frankenthal wurden live
+erfolgreich abgerufen.
 
 ## Auf dem Smartphone testen
 
 Die separat installierbare APK heißt **Kursfenster Webtest** und verwendet
 `de.wiresheep.kursplaner.webpreview`. Sie benötigt keinen eigenen Server und
-kann neben Kursfenster 0.14.2 installiert werden. Die Daten der beiden Apps sind
+kann neben Kursfenster 0.14.2 installiert werden. Das Update von Webtest 0.15.0 oder 0.15.1
+behält dessen Zugangsdaten und Pläne. Die Daten der beiden Apps sind
 getrennt; vorhandene Pläne werden nicht übernommen.
 
 Der Signierschlüssel der bisherigen APK ist in dieser Umgebung nicht vorhanden.
@@ -18,16 +20,20 @@ separate Testinstallation bereitgestellt. Für ein späteres Update unter der
 ursprünglichen Paketkennung wird der ursprüngliche Signierschlüssel benötigt.
 Die bisherige App zum Testen nicht deinstallieren.
 
-1. `downloads/kursfenster-0.15.0-webtest-debug.apk` installieren.
-2. **Kurs im Web auswählen (auch bei Displaysperre)** öffnen und **Webzugang
-   einrichten** wählen. E-Mail und Passwort der VeniceBeach-App eingeben und
+1. `downloads/kursfenster-0.15.2-webtest-debug.apk` installieren.
+2. **Kurs im Web auswählen (auch bei Displaysperre)** öffnen, **Webzugang &
+   Einstellungen** und anschließend **Webzugang einrichten** wählen. E-Mail und Passwort der VeniceBeach-App eingeben und
    **Prüfen & speichern** wählen. Der Login prüft auch die Berechtigung für
    Studiokurse. Anmeldedaten nicht in Chat oder Diagnose einfügen.
-3. Zeitgenaue Alarme und Benachrichtigungen erlauben. Auf dem Zielgerät die
+3. Unter **Webzugang & Einstellungen** zeitgenaue Alarme und Benachrichtigungen
+   erlauben. Auf dem Zielgerät die
    Hintergrundnutzung für Kursfenster Webtest erlauben.
-4. Tag auswählen, **Kurse laden**, einen tatsächlich gewünschten Kurs wählen
+4. Im Bereich **Studio** auf den angezeigten Studionamen tippen. Die
+   verfügbaren Studios werden vom Anbieter geladen und alphabetisch angeboten.
+   Gewünschtes Studio und Tag auswählen, **Kurse laden**, einen tatsächlich
+   gewünschten Kurs wählen
    und den angezeigten Anmeldezeitpunkt bestätigen. Es werden nur Präsenzkurse
-   in Grünstadt mit einem 24-Stunden-Anmeldefenster angeboten. Das bloße Laden
+   im ausgewählten Studio mit einem 24-Stunden-Anmeldefenster angeboten. Das bloße Laden
    und Auswählen bucht nichts. Speichern innerhalb des offenen Fensters führt
    dagegen unmittelbar zum automatischen Versuch.
 5. Display sperren. Zum Anmeldezeitpunkt soll eine kurze Benachrichtigung über
@@ -37,6 +43,41 @@ Die bisherige App zum Testen nicht deinstallieren.
 6. Bei **Anmeldung bitte prüfen** die Kursdetails öffnen. **Teilnahme im Web
    prüfen** liest ausschließlich den Status. **Webanmeldung erneut versuchen**
    steht nur nach einem Fehler vor dem Absenden zur Verfügung.
+
+## Überarbeitete Oberfläche
+
+Version 0.15.2 nutzt die ruhigen Grüntöne der Kursfenster-Startseite, abgerundete
+Karten und größere Abstände in dp. Studio, Datum und die hervorgehobene Aktion
+**Kurse laden** stehen gemeinsam in einer Auswahlkarte. Kurskarten zeigen
+Kursname, Beginn und – sofern vom Anbieter geliefert – das Ende des Kurses.
+Während einer Anfrage läuft eine Ladeanzeige; Auswahlaktionen sind vorübergehend
+gesperrt. Statusmeldungen werden auch über die Bedienungshilfe angekündigt.
+
+Webzugang, Alarme, Benachrichtigungen und das Löschen von Zugangsdaten sind
+unter **Webzugang & Einstellungen** zusammengefasst. Die Anmeldung selbst und
+die Prüfung vor dem Speichern bleiben unverändert. Native Android-Vorschauen
+werden beim Test unter `app/build/reports/ui-preview/webbooking-*.png` erzeugt.
+
+## Studioauswahl
+
+Die Studioliste kommt aus `tenantInfo.studios.data`; nur Standorte mit
+`enableCourses=true` und `enableCourseJoin=true` werden angeboten. Die Liste
+enthält auch die vom selben Anbieter bereitgestellten FitBase-/Partnerstudios.
+Welche davon mit der Mitgliedschaft gebucht werden dürfen, entscheidet weiterhin
+der Anbieter beim Login und Buchungsaufruf.
+
+Grünstadt ist die anfängliche Vorauswahl. Danach merkt sich Kursfenster lokal
+die zuletzt ausgewählte Studio-ID und den Namen, auch nach Schließen oder
+Drehen des Bildschirms. Bei einem Studio-Wechsel werden bereits angezeigte
+Kurse entfernt. Die Kursabfrage wird mit der ausgewählten ID ausgeführt;
+Kurse anderer Studios in einer Antwort werden ausgeblendet. Vor dem Speichern
+zeigt die Bestätigung ausdrücklich den Studio-Namen.
+
+Jeder Plan speichert seine eigene Studio-ID und seinen Namen. Eine spätere
+Änderung der Auswahl verändert keine bestehenden Pläne. Die Hintergrundbuchung
+verwendet weiterhin das Studio des Plans und prüft die Antwort darauf.
+**Webkursplan öffnen** in den Details öffnet die Kursauswahl für das Studio
+des betreffenden Plans.
 
 ## Öffentlicher Webvertrag
 
@@ -116,7 +157,10 @@ source /workspace/.android-tools/env.sh
 Ohne diese Option bleibt die ursprüngliche Paketkennung erhalten; solche Builds
 können wegen der abweichenden Signatur derzeit kein Update von 0.14.2 ersetzen.
 
-Die automatisierten Webtests decken den gesperrten Bildschirm, die Alarmauslösung,
+Die automatisierten Webtests decken zusätzlich Studioauswahl, Persistenz nach
+Neuerstellung/erneutem Öffnen, das Verwerfen alter Kurskarten beim Studio-Wechsel,
+fehlerhafte Studiolisten und Buchung im gespeicherten Studio ab. Sie prüfen auch
+den gesperrten Bildschirm, die Alarmauslösung,
 Identitätsprüfung, frühe/abgelaufene Pläne, volle/abgesagte/private Kurse,
 abweichende Buchungsfenster, bereits vorhandene Teilnahme, externe oder falsche
 Buchungslinks, verlorene POST-Antworten, fehlerhafte Bestätigungen, Prozessneustart,
