@@ -54,7 +54,7 @@ public final class PlanScheduler {
         boolean booked=plan.status==CoursePlan.Status.BOOKED;
         Notification notification=new Notification.Builder(context,CHANNEL).setSmallIcon(R.drawable.ic_course)
                 .setContentTitle((booked ? "Anmeldung bestätigt: " : submitted ? "Buchungsversuch gesendet: " : "Automatik angehalten: ")+plan.course)
-                .setContentText(booked ? "VeniceBeach zeigt Vom Kurs abmelden. Du bist angemeldet."
+                .setContentText(booked ? (plan.isWeb() ? "Der Webzugang bestätigt deine Teilnahme." : "VeniceBeach zeigt Vom Kurs abmelden. Du bist angemeldet.")
                         : submitted ? "Bitte Anmeldung in VeniceBeach prüfen. Erfolg noch nicht bestätigt."
                         : "Bitte manuell anmelden. Daten oder Gerätezustand konnten nicht sicher geprüft werden.")
                 .setContentIntent(action).setAutoCancel(true).build();
@@ -64,13 +64,17 @@ public final class PlanScheduler {
     public static void restore(Context context) {
         createChannel(context);
         PlanStore store = new PlanStore(context);
-        for (CoursePlan plan : store.all()) {
+        synchronized(PlanStore.LOCK) {
+        for (CoursePlan snapshot : store.all()) {
+            CoursePlan plan=store.find(snapshot.id);
+            if(plan==null) continue;
             if((plan.status==CoursePlan.Status.AUTOMATING || plan.status==CoursePlan.Status.QUEUED)
-                    && !BookingAccessibilityService.running(plan.id)) {
+                    && !BookingAccessibilityService.running(plan.id) && !WebBookingService.running(plan.id)) {
                 store.put(plan.withStatus(CoursePlan.Status.ACTION_REQUIRED));
             } else if (BookingDispatcher.pending(plan.status) && plan.isExpired(Instant.now())) {
                 cancel(context, plan.id); store.put(plan.withStatus(CoursePlan.Status.EXPIRED));
             } else schedule(context, plan);
+        }
         }
         if(BookingAccessibilityService.available()) BookingDispatcher.resumeAfterUnlock(context);
     }

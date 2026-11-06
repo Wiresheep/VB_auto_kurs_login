@@ -1,5 +1,26 @@
 # Kursfenster – Kursplaner für VeniceBeach
 
+**Neu: 0.15.0 Webtest – lokale Webbuchung für Grünstadt, auch bei gesperrtem Display.**
+
+[Separat installierbare Test-APK](downloads/kursfenster-0.15.0-webtest-debug.apk) ·
+[Prüfsumme](downloads/kursfenster-0.15.0-webtest-debug.apk.sha256) ·
+[Einrichtung, Testablauf und technische Details](docs/web-booking.md)
+
+In der App **Kurs im Web auswählen (auch bei Displaysperre)** öffnen, den
+Webzugang einrichten, zeitgenaue Alarme erlauben und einen Kurs aus dem Webplan
+speichern. Die App führt Login und Buchung direkt auf dem Smartphone aus.
+Sie benötigt keinen eigenen Server. Die öffentliche Kursabfrage wurde live
+geprüft; Login und echte Buchung müssen noch mit deinem Konto auf dem Gerät
+bestätigt werden.
+
+Die Test-App heißt **Kursfenster Webtest** und wird neben 0.14.2 installiert.
+Der bisherige Signierschlüssel liegt hier nicht vor; deshalb gibt es noch kein
+Update-APK für die bestehende Installation. Pläne bleiben in der bisherigen App
+erhalten. Ein unbestätigter Buchungsversuch wird niemals automatisch wiederholt.
+
+Die folgenden Abschnitte beschreiben die weiterhin verfügbare App-Bedienung und
+die bisherige veröffentlichte Version 0.14.2.
+
 Android-App zur Planung von Kursanmeldungen in
 [VeniceBeach Fitness](https://play.google.com/store/apps/details?id=com.actinate.venicebeach)
 (`com.actinate.venicebeach`). Unabhängiges Projekt, keine offizielle VeniceBeach-App.

@@ -86,11 +86,11 @@ public final class BookingAccessibilityService extends AccessibilityService {
     }
     public static boolean available() { return connected != null; }
     public static boolean begin(Context context, CoursePlan plan) {
-        if (connected == null || connected.calibrationRequested || connected.pickerRequested || !plan.automatic || plan.isExpired(java.time.Instant.now())
+        if (plan.isWeb() || connected == null || connected.calibrationRequested || connected.pickerRequested || !plan.automatic || plan.isExpired(java.time.Instant.now())
                 || plan.opensAt().isAfter(java.time.Instant.now()) || !connected.deviceReady()) return false;
         if (running(plan.id)) return true;
         CoursePlan saved = new PlanStore(context).find(plan.id);
-        if (saved == null || !BookingDispatcher.pending(saved.status)) return false;
+        if (saved == null || saved.isWeb() || !BookingDispatcher.pending(saved.status)) return false;
         new PlanStore(context).put(saved.withStatus(CoursePlan.Status.QUEUED));
         connected.queue.addLast(plan.id);
         connected.startNext();

@@ -25,6 +25,7 @@ final class BookingDispatcher {
         if(plan.opensAt().isAfter(now)) {
             CoursePlan planned=plan.withStatus(CoursePlan.Status.PLANNED); store.put(planned); PlanScheduler.schedule(context,planned); return;
         }
+        if(plan.isWeb()) { WebBookingService.start(context,id); return; }
         if(!unlocked(context)) {
             if(BookingPreferences.waitForUnlock(context)) waitForUnlock(context,plan);
             else if(!BookingPreferences.automaticOpen(context) || userRequested) waitForUser(context,plan,"Bitte das Handy entsperren und die Anmeldung starten.");

@@ -56,6 +56,7 @@ public final class MainActivity extends Activity {
         LinearLayout actions=card(root);
         actions.addView(text("Deinen nächsten Kurs planen",21,INK,true));
         actions.addView(text("Übernimm den Kurs direkt aus VeniceBeach oder trage ihn selbst ein.",15,MUTED,false));
+        primary(actions,"Kurs im Web auswählen (auch bei Displaysperre)",v -> startActivity(new Intent(this,WebBookingActivity.class)));
         primary(actions,"Kurs in VeniceBeach auswählen",v -> {
             if(!BookingAccessibilityService.pickCourse()) showError("Aktiviere den Buchungshelfer unter Einstellungen. Warte gegebenenfalls, bis eine laufende Anmeldung abgeschlossen ist.");
         });
@@ -105,7 +106,7 @@ public final class MainActivity extends Activity {
     private void startNow(String id) {
         CoursePlan pending=new PlanStore(this).find(id);
         if(pending==null || !pending.automatic || !BookingDispatcher.pending(pending.status)) { renderPlans(); return; }
-        if(!BookingAccessibilityService.available()) {
+        if(!pending.isWeb() && !BookingAccessibilityService.available()) {
             Toast.makeText(this,"Bitte den Buchungshelfer aktivieren und danach Jetzt anmelden wählen.",Toast.LENGTH_LONG).show(); showSettings(); return;
         }
         BookingDispatcher.dispatch(this,id,true); renderPlans();
@@ -139,8 +140,15 @@ public final class MainActivity extends Activity {
     @Override protected void onPause() { handler.removeCallbacks(refresh); super.onPause(); }
     private void renderSetup() {
         boolean helper=BookingAccessibilityService.available(),exact=PlanScheduler.exactAllowed(this),notifications=PlanScheduler.notificationsAllowed(this);
-        String signature=helper+":"+exact+":"+notifications+":"+BookingPreferences.waitForUnlock(this)+":"+BookingPreferences.automaticOpen(this); if(signature.equals(lastSetup)) return; lastSetup=signature;
+        boolean web=new WebAccount(this).configured();
+        String signature=web+":"+helper+":"+exact+":"+notifications+":"+BookingPreferences.waitForUnlock(this)+":"+BookingPreferences.automaticOpen(this); if(signature.equals(lastSetup)) return; lastSetup=signature;
         setup.removeAllViews();
+        if(web) {
+            setup.addView(text(exact ? "Webzugang eingerichtet" : "Zeitgenaue Alarme fehlen",17,exact ? TEAL : AMBER,true));
+            setup.addView(text("Webpläne werden auch bei gesperrtem Display angemeldet. Ältere App-Pläne benötigen weiterhin den Buchungshelfer und ein entsperrtes Handy.",14,MUTED,false));
+            if(!exact || !notifications) button(setup,"Webbuchung einrichten",v -> startActivity(new Intent(this,WebBookingActivity.class)));
+            return;
+        }
         setup.addView(text(helper && exact ? "Buchungshelfer aktiv" : "Einrichtung abschließen",17,helper && exact ? TEAL : AMBER,true));
         setup.addView(text(helper && exact ? (!BookingPreferences.automaticOpen(this) ? "Du startest bereitstehende Anmeldungen über Jetzt anmelden."
                 : BookingPreferences.waitForUnlock(this) ? "Gesperrtes Handy? Die Anmeldung wartet auf das nächste Entsperren." : "Lass dein Handy zur Anmeldung eingeschaltet und entsperrt.")
@@ -151,7 +159,10 @@ public final class MainActivity extends Activity {
     private void showSettings() {
         ScrollView content=new ScrollView(this); LinearLayout body=column(); body.setPadding(dp(20),dp(8),dp(20),dp(20)); content.addView(body);
         AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Einstellungen & Hilfe").setView(content).setPositiveButton("Fertig",null).create();
-        body.addView(text("Automatische Anmeldung",18,INK,true));
+        body.addView(text("Automatische Webbuchung",18,INK,true));
+        button(body,"Webzugang & Kursplan Grünstadt",v -> { dialog.dismiss(); startActivity(new Intent(this,WebBookingActivity.class)); });
+        body.addView(text("Für Webpläne ist weder Entsperren noch der Buchungshelfer erforderlich. Die folgenden Einstellungen gelten für die bisherige App-Bedienung.",14,MUTED,false));
+        body.addView(text("Automatische Anmeldung per App-Bedienung",18,INK,true));
         body.addView(text("VeniceBeach muss angemeldet sein. Zum Buchen wird die App kurz auf dem entsperrten Bildschirm bedient.",14,MUTED,false));
         body.addView(text(BookingAccessibilityService.available() ? "Buchungshelfer ist aktiviert" : "Buchungshelfer ist noch nicht aktiviert",14,INK,true));
         button(body,"Buchungshelfer einrichten",v -> { dialog.dismiss(); startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)); });
@@ -216,7 +227,7 @@ public final class MainActivity extends Activity {
             PlanStore store=new PlanStore(this); String replacing=editingId;
             if(replacing!=null) {
                 CoursePlan saved=store.find(replacing);
-                if(saved==null || !BookingDispatcher.pending(saved.status) || BookingAccessibilityService.running(replacing))
+                if(saved==null || saved.isWeb() || !BookingDispatcher.pending(saved.status) || BookingAccessibilityService.running(replacing))
                     throw new IllegalArgumentException("Dieser Plan kann gerade nicht geändert werden. Bitte den aktuellen Status prüfen.");
                 plan=new CoursePlan(replacing,plan.course,plan.studio,plan.startsAt,CoursePlan.Status.PLANNED,plan.automatic);
             }
@@ -247,10 +258,11 @@ public final class MainActivity extends Activity {
             case WAITING_USER: return "Bereit zur Anmeldung";
             case AUTOMATING: return "Anmeldung läuft …";
             case QUEUED: return "Wartet auf Anmeldung";
-            case VERIFY_REQUIRED: return BookingAccessibilityService.running(plan.id) ? "Bestätigung wird geprüft …" : "Anmeldung bitte prüfen";
+            case VERIFY_REQUIRED: return (BookingAccessibilityService.running(plan.id) || WebBookingService.running(plan.id)) ? "Bestätigung wird geprüft …" : "Anmeldung bitte prüfen";
             case ACTION_REQUIRED: return "Anmeldung bitte prüfen";
             case REMINDED: return "Erinnerung gesendet";
-            default: return plan.opensAt().isAfter(now) ? (plan.automatic ? (BookingPreferences.automaticOpen(this) ? "Automatische Anmeldung geplant" : "Anmeldung vorgemerkt") : "Erinnerung geplant") : "Anmeldefenster geöffnet";
+            default: if(plan.isWeb()) return plan.opensAt().isAfter(now) ? "Automatische Webanmeldung geplant" : "Webanmeldefenster geöffnet";
+                return plan.opensAt().isAfter(now) ? (plan.automatic ? (BookingPreferences.automaticOpen(this) ? "Automatische Anmeldung geplant" : "Anmeldung vorgemerkt") : "Erinnerung geplant") : "Anmeldefenster geöffnet";
         }
     }
     private void renderPlans() {
@@ -270,7 +282,8 @@ public final class MainActivity extends Activity {
                 row.addView(text(CourseDraft.meaningfulName(plan.course) ? plan.course : "Kursname ergänzen",22,INK,true));
                 row.addView(text(CourseDraft.meaningfulName(plan.studio) ? plan.studio : "Studio ergänzen",14,MUTED,false));
                 row.addView(text(MOMENT.format(plan.startsAt),17,INK,true));
-                if(plan.status==CoursePlan.Status.PLANNED) row.addView(text((plan.automatic ? (BookingPreferences.automaticOpen(this) ? "Automatische Anmeldung ab " : "Anmeldung bereit ab ") : "Erinnerung ab ")+MOMENT.format(plan.opensAt()),13,MUTED,false));
+                if(plan.isWeb()) row.addView(text("Webbuchung · auch bei gesperrtem Display",13,TEAL,true));
+                if(plan.status==CoursePlan.Status.PLANNED) row.addView(text(plan.isWeb() ? "Webanmeldung ab "+MOMENT.format(plan.opensAt()) : (plan.automatic ? (BookingPreferences.automaticOpen(this) ? "Automatische Anmeldung ab " : "Anmeldung bereit ab ") : "Erinnerung ab ")+MOMENT.format(plan.opensAt()),13,MUTED,false));
                 if(attention) row.addView(text("Bitte den Anmeldestatus in VeniceBeach kontrollieren.",14,AMBER,false));
                 if(plan.status==CoursePlan.Status.WAITING_UNLOCK || plan.status==CoursePlan.Status.WAITING_USER) {
                     row.addView(text(plan.status==CoursePlan.Status.WAITING_UNLOCK ? "Der Plan wartet auf ein entsperrtes Handy." : "Starte, wenn VeniceBeach für die Anmeldung geöffnet werden darf.",14,MUTED,false));
@@ -288,13 +301,18 @@ public final class MainActivity extends Activity {
         AlertDialog dialog=new AlertDialog.Builder(this).setTitle(CourseDraft.meaningfulName(plan.course) ? plan.course : "Kursdetails").setView(content).setPositiveButton("Fertig",null).create();
         body.addView(text(status(plan,Instant.now()),16,TEAL,true));
         body.addView(text((CourseDraft.meaningfulName(plan.studio) ? plan.studio : "Studio noch nicht ergänzt")+"\nKursbeginn: "+MOMENT.format(plan.startsAt)+"\nAnmeldung ab: "+MOMENT.format(plan.opensAt()),15,INK,false));
-        if(BookingDispatcher.pending(plan.status) && !BookingAccessibilityService.running(id)) button(body,"Angaben bearbeiten",v -> { dialog.dismiss(); editPlan(plan); });
+        if(BookingDispatcher.pending(plan.status) && !BookingAccessibilityService.running(id) && !plan.isWeb()) button(body,"Angaben bearbeiten",v -> { dialog.dismiss(); editPlan(plan); });
         if(plan.status==CoursePlan.Status.WAITING_UNLOCK || plan.status==CoursePlan.Status.WAITING_USER)
             primary(body,"Jetzt anmelden",v -> { dialog.dismiss(); startNow(id); });
+        if(plan.isWeb() && !WebBookingService.running(id)) {
+            if(plan.status==CoursePlan.Status.ACTION_REQUIRED) button(body,"Webanmeldung erneut versuchen",v -> { dialog.dismiss(); WebBookingService.start(this,id); });
+            if(plan.status==CoursePlan.Status.VERIFY_REQUIRED) button(body,"Teilnahme im Web prüfen",v -> { dialog.dismiss(); WebBookingService.start(this,id); });
+            button(body,"Webkursplan öffnen",v -> startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse("https://www.venicebeach-fitness.de/clubs/venicebeach/gruenstadt.html#kursplan-info"))));
+        }
         button(body,"In VeniceBeach öffnen",v -> { dialog.dismiss(); openVenice(); });
         button(body,"Plan entfernen",v -> {
             dialog.dismiss(); new AlertDialog.Builder(this).setTitle("Plan entfernen?")
-                    .setMessage("Eine bereits gebuchte Teilnahme in VeniceBeach bleibt bestehen.")
+                    .setMessage("Eine bereits gebuchte Teilnahme in VeniceBeach bleibt bestehen. Eine laufende Buchung kann noch abgeschlossen werden.")
                     .setNegativeButton("Behalten",null).setPositiveButton("Entfernen",(d,w) -> { new PlanStore(this).remove(id); PlanScheduler.cancel(this,id); renderPlans(); }).show();
         });
         String diagnostic=store.diagnostic(id);
