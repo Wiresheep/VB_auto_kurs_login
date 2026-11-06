@@ -97,7 +97,7 @@ public final class WebBookingActivity extends Activity {
         accountStatus=label(access,"",16); accountStatus.setTypeface(null,Typeface.BOLD); updateAccountStatus();
         label(access,"Dein Webzugang und die Android-Freigaben für automatische Anmeldungen.",14).setTextColor(MUTED);
         button(access,"Webzugang & Einstellungen",this::showWebSettings);
-        label(body,"Noch im Test: Bitte die erste Anmeldung auf deinem Gerät prüfen.",12).setTextColor(MUTED);
+        label(body,"Deine Kurspläne bleiben auf diesem Gerät.",12).setTextColor(MUTED);
     }
     private void updateAccountStatus() {
         if(accountStatus!=null) {

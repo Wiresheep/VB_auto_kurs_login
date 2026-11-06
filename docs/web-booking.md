@@ -6,28 +6,29 @@ mit einem Mitgliedskonto stehen noch aus. Die öffentliche Studioliste (derzeit
 39 Standorte) sowie Kursabfragen für Grünstadt und Frankenthal wurden live
 erfolgreich abgerufen.
 
-## Auf dem Smartphone testen
+## Auf dem Smartphone einrichten
 
-Die separat installierbare APK heißt **Kursfenster Webtest** und verwendet
-`de.wiresheep.kursplaner.webpreview`. Sie benötigt keinen eigenen Server und
-kann neben Kursfenster 0.14.2 installiert werden. Das Update von Webtest 0.15.0 oder 0.15.1
-behält dessen Zugangsdaten und Pläne. Die Daten der beiden Apps sind
-getrennt; vorhandene Pläne werden nicht übernommen.
+**Kursfenster 0.15.2 ist die aktuelle Hauptversion des Projekts.** Die App heißt
+**Kursfenster** und kann über die bisherigen Webtest-Versionen 0.15.0 bis 0.15.2
+installiert werden. Zugangsdaten und Pläne bleiben dabei erhalten. Die interne
+Paketkennung `de.wiresheep.kursplaner.webpreview` bleibt aus diesem Grund bestehen.
+Die interne Versionsnummer wurde für das Update der bisherigen Testausgabe erhöht.
 
-Der Signierschlüssel der bisherigen APK ist in dieser Umgebung nicht vorhanden.
-Die neue Debug-Signatur stimmt nicht mit 0.14.2 überein. Deshalb wird eine
-separate Testinstallation bereitgestellt. Für ein späteres Update unter der
-ursprünglichen Paketkennung wird der ursprüngliche Signierschlüssel benötigt.
-Die bisherige App zum Testen nicht deinstallieren.
+Die Hauptversion wird als signierter Release-Build ohne Debugging bereitgestellt.
+Der lokale Signierschlüssel entspricht weiterhin dem der bisherigen Webversionen.
+Der Signierschlüssel von 0.14.2 liegt dagegen nicht vor: 0.14.2 lässt sich deshalb
+nicht direkt aktualisieren. Die neue Hauptversion kann daneben installiert werden;
+Pläne aus 0.14.2 werden nicht automatisch übernommen. Die alte App nicht zum
+Installieren der neuen Version deinstallieren.
 
-1. `downloads/kursfenster-0.15.2-webtest-debug.apk` installieren.
+1. `downloads/kursfenster-0.15.2.apk` installieren.
 2. **Kurs im Web auswählen (auch bei Displaysperre)** öffnen, **Webzugang &
    Einstellungen** und anschließend **Webzugang einrichten** wählen. E-Mail und Passwort der VeniceBeach-App eingeben und
    **Prüfen & speichern** wählen. Der Login prüft auch die Berechtigung für
    Studiokurse. Anmeldedaten nicht in Chat oder Diagnose einfügen.
 3. Unter **Webzugang & Einstellungen** zeitgenaue Alarme und Benachrichtigungen
    erlauben. Auf dem Zielgerät die
-   Hintergrundnutzung für Kursfenster Webtest erlauben.
+   Hintergrundnutzung für Kursfenster erlauben.
 4. Im Bereich **Studio** auf den angezeigten Studionamen tippen. Die
    verfügbaren Studios werden vom Anbieter geladen und alphabetisch angeboten.
    Gewünschtes Studio und Tag auswählen, **Kurse laden**, einen tatsächlich
@@ -149,13 +150,15 @@ Es gibt keine Garantie auf sekundengenaue Ausführung oder einen freien Platz.
 
 ```sh
 source /workspace/.android-tools/env.sh
-./gradlew --no-daemon assembleDebug testDebugUnitTest lintDebug
-./gradlew --no-daemon -PwebPreview assembleDebug
+./gradlew --no-daemon assembleRelease testReleaseUnitTest lintRelease
 ```
 
-`-PwebPreview` ändert Paketkennung und App-Namen für die parallele Testinstallation.
-Ohne diese Option bleibt die ursprüngliche Paketkennung erhalten; solche Builds
-können wegen der abweichenden Signatur derzeit kein Update von 0.14.2 ersetzen.
+Die Standardkonfiguration erzeugt die Hauptversion **Kursfenster** mit der
+bestehenden Paketkennung der Webversionen. `-PwebPreview` ist nicht mehr erforderlich.
+Die APK liegt unter `app/build/outputs/apk/release/app-release.apk`. Für Updates
+wird derselbe lokale Signierschlüssel wie bei den bisherigen Webtest-APKs verwendet.
+Die alte Paketkennung `de.wiresheep.kursplaner` von 0.14.2 wird nicht für neue Builds
+verwendet, damit die vorhandenen Webversionen ohne Datenverlust aktualisierbar sind.
 
 Die automatisierten Webtests decken zusätzlich Studioauswahl, Persistenz nach
 Neuerstellung/erneutem Öffnen, das Verwerfen alter Kurskarten beim Studio-Wechsel,

@@ -4,13 +4,19 @@ android {
     compileSdk 35
     buildFeatures { buildConfig true }
     defaultConfig {
-        applicationId 'de.wiresheep.kursplaner'
-        if (project.hasProperty('webPreview')) applicationIdSuffix '.webpreview'
-        manifestPlaceholders = [appLabel: project.hasProperty('webPreview') ? 'Kursfenster Webtest' : 'Kursfenster']
+        // Keep the installed web versions' identity so promotion preserves their local data.
+        applicationId 'de.wiresheep.kursplaner.webpreview'
+        manifestPlaceholders = [appLabel: 'Kursfenster']
         minSdk 26
         targetSdk 35
-        versionCode 19
+        versionCode 20
         versionName '0.15.2'
+    }
+    buildTypes {
+        release {
+            // Reuse the existing local signing key to support updates of the web versions.
+            signingConfig signingConfigs.debug
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
