@@ -6,3 +6,14 @@ local.properties
 *.jks
 *.keystore
 /releases/
+
+# iOS / Swift
+**/.build/
+**/.swiftpm/
+**/DerivedData/
+**/xcuserdata/
+*.xcuserstate
+*.ipa
+*.xcarchive/
+
+.DS_Store

@@ -1,0 +1,40 @@
+{
+  "days": {
+    "data": [
+      {
+        "occurences": [
+          {
+            "id": 8400000084641347,
+            "name": "Pilates",
+            "studioId": 74,
+            "start_at": 1793950200,
+            "joined": false,
+            "canceled_at": null,
+            "private": false,
+            "is_livestream": false,
+            "enableJoin": true,
+            "join_open_prior_start_seconds": 86400,
+            "attendees_count": null,
+            "max_participants": 30,
+            "max_joins_per_day": null,
+            "max_joins_per_week": null,
+            "joins_today": null,
+            "joins_weekly": null,
+            "links": [
+              {
+                "rel": "leaveWidgetOccurence",
+                "uri": "/widgets/v1/classes/occurences/8400000084641347",
+                "method": "DELETE"
+              },
+              {
+                "rel": "joinWidgetOccurence",
+                "uri": "/widgets/v1/classes/occurences/8400000084641347",
+                "method": "POST"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
