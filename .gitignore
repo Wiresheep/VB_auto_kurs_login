@@ -17,3 +17,5 @@ local.properties
 *.xcarchive/
 
 .DS_Store
+
+/ios/artifacts/

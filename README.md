@@ -26,6 +26,12 @@ Der Kern ist mit 20 Tests geprüft; ein Xcode-Build und iPhone-Gerätetest stehe
 aus. Es gibt deshalb noch keine installierbare iOS-Version. Android 0.15.2 bleibt
 von diesem Port unberührt.
 
+Für **iPhone 16 und neuer** ist ein Cloud-Build über den manuellen GitHub-Workflow
+**iOS – Build für iPhone** vorbereitet. Er kann auch vom Browser eines älteren Macs
+wie dem MacBook Air 2015 gestartet werden. Der Workflow erzeugt zunächst eine
+**unsignierte** IPA; Signierung und Installation sind ein separater Schritt.
+[Anleitung für den Cloud-Build](ios/README.md#über-github-actions-bauen).
+
 ## Installation und Updates
 
 Die aktuelle APK ist ein signierter Release-Build ohne aktiviertes Debugging.

@@ -70,6 +70,56 @@ werden nicht stillschweigend überschrieben. HTTP-Antworten, Tokens und Passwör
 werden nicht in Diagnosemeldungen ausgegeben. HTTPS bleibt verpflichtend;
 Weiterleitungen auf andere Hosts werden abgelehnt.
 
+## iPhone 16 und MacBook Air Anfang 2015
+
+Das iPhone 16 wurde mit iOS 18 eingeführt. Für die hier vorgesehene Entwicklung
+verwenden wir daher Xcode 16 oder neuer mit einem iOS-SDK ab Version 18.
+Ein MacBook Air Anfang 2015 kann offiziell höchstens macOS Monterey verwenden;
+auch Monterey 12.7.6 ermöglicht dort keinen aktuellen lokalen Xcode-Build.
+Das iOS-Projekt wird deshalb nicht auf Xcode 14.2 zurückgestuft.
+
+### Über GitHub Actions bauen
+
+Der Workflow [iOS – Build für iPhone](../.github/workflows/ios-build.yml) verwendet
+einen von GitHub bereitgestellten macOS-Runner. Der eigene Mac benötigt dafür nur
+den Browser. Ein eigener Server für die laufende App wird nicht eingerichtet.
+
+1. Auf GitHub dieses Repository öffnen und **Actions** wählen.
+2. Links **iOS – Build für iPhone** auswählen und **Run workflow** drücken.
+3. Den Branch **main** wählen und den Lauf starten. Der Workflow wird ausschließlich
+   manuell gestartet; er läuft nicht automatisch bei jedem Push.
+4. Der Lauf zeigt die verwendete Xcode-, Swift- und SDK-Version, testet den Kern,
+   baut für den Simulator und erstellt anschließend ein Release-Archiv für ein
+   echtes iPhone. Apple-Konto, Zertifikate und Provisioning-Profile werden dafür
+   nicht benötigt.
+5. Bei Erfolg unter **Artifacts → Kursfenster-iPhone-UNSIGNIERT** das Paket
+   herunterladen. Es enthält `Kursfenster-unsigned.ipa`, eine Prüfsumme und
+   Installationshinweise. Die Dateien werden sieben Tage aufbewahrt.
+6. Bei einem Fehler den fehlgeschlagenen Schritt und das Artefakt
+   **iOS-Buildprotokolle** prüfen. Ein grüner Kern-Test allein beweist noch keinen
+   erfolgreichen iPhone-Build.
+
+Der Workflow ist vorbereitet; ein tatsächlicher macOS-Lauf ist hier noch nicht
+nachgewiesen. Ein erfolgreicher Build ersetzt weder Signierung noch Gerätetest.
+Dieses Repository ist öffentlich. Der hier verwendete Standard-macOS-Runner fällt
+unter die kostenlose Actions-Nutzung für öffentliche Repositories. Für private
+Repositories oder größere Runner gelten andere Bedingungen. Der Workflow startet
+nur manuell und ist auf 30 Minuten begrenzt.
+
+### Ohne kostenpflichtiges Apple-Developer-Konto
+
+Die unsignierte IPA ist **noch nicht direkt installierbar**. Für TestFlight oder
+App-Store-Verteilung wird eine kostenpflichtige Apple-Developer-Mitgliedschaft
+benötigt. Kostenlose persönliche Signierung kann für private Tests ein anderer
+Weg sein. Die persönliche Signierung gilt üblicherweise sieben Tage und muss
+danach erneuert werden. Bei Ablauf startet auch die Buchungsautomatik nicht mehr.
+Ein geeignetes Signierwerkzeug für Monterey und die konkrete iOS-Version muss dafür separat
+geprüft werden. Ein Apple-Passwort oder privater Signierschlüssel gehört nicht in
+Chat, Repository oder Buildprotokolle.
+
+Der Workflow enthält absichtlich keine Signier-Geheimnisse und behauptet nicht,
+eine bereits installierbare oder für TestFlight freigegebene App auszugeben.
+
 ## Auf einem Mac bauen
 
 Xcode 16 oder neuer verwenden und zunächst Folgendes ausführen:
@@ -79,8 +129,8 @@ cd ios
 ./scripts/verify-on-mac.sh
 ```
 
-Das Skript testet das Swift-Paket und baut die App für den iOS-Simulator ohne
-Signierung. Dieser Schritt ist hier mangels macOS/Xcode **noch nicht ausgeführt**.
+Das Skript prüft Xcode ab Version 16, testet das Swift-Paket, validiert die
+Projektverweise und baut die App für den iOS-Simulator ohne Signierung. Dieser Schritt ist hier mangels macOS/Xcode **noch nicht ausgeführt**.
 Das Projekt lässt sich direkt mit `open Kursfenster.xcodeproj` öffnen;
 zusätzliche Projektgeneratoren oder externe Swift-Pakete werden nicht benötigt.
 

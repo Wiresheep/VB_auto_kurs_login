@@ -1,0 +1,56 @@
+name: iOS – Build für iPhone
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Swift-Tests und iPhone-Build
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - name: Quellcode laden
+        uses: actions/checkout@v4
+
+      - name: Xcode und iOS-SDK anzeigen
+        run: |
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+          swift --version
+
+      - name: Kern testen und Simulator-Build prüfen
+        shell: bash
+        run: ./ios/scripts/verify-on-mac.sh 2>&1 | tee "$RUNNER_TEMP/ios-check.log"
+
+      - name: Unsignierten iPhone-Build erstellen
+        shell: bash
+        run: ./ios/scripts/build-unsigned-iphone.sh 2>&1 | tee "$RUNNER_TEMP/ios-device-build.log"
+
+      - name: Unsignierte IPA und Prüfsumme bereitstellen
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kursfenster-iPhone-UNSIGNIERT
+          path: |
+            ios/artifacts/Kursfenster-unsigned.ipa
+            ios/artifacts/Kursfenster-unsigned.ipa.sha256
+            ios/artifacts/INSTALLATION.txt
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Prüfprotokolle bereitstellen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: iOS-Buildprotokolle
+          path: |
+            ${{ runner.temp }}/ios-check.log
+            ${{ runner.temp }}/ios-device-build.log
+          if-no-files-found: ignore
+          retention-days: 7
