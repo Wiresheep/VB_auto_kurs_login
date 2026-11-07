@@ -17,7 +17,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Quellcode laden
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7, Node.js 24
 
       - name: Xcode und iOS-SDK anzeigen
         run: |
@@ -34,7 +34,7 @@ jobs:
         run: ./ios/scripts/build-unsigned-iphone.sh 2>&1 | tee "$RUNNER_TEMP/ios-device-build.log"
 
       - name: Unsignierte IPA und Prüfsumme bereitstellen
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7, Node.js 24
         with:
           name: Kursfenster-iPhone-UNSIGNIERT
           path: |
@@ -46,7 +46,7 @@ jobs:
 
       - name: Prüfprotokolle bereitstellen
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7, Node.js 24
         with:
           name: iOS-Buildprotokolle
           path: |

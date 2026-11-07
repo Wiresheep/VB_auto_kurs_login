@@ -4,11 +4,13 @@ Native SwiftUI-App ab iOS 17 mit Weblogin, Studioauswahl, Kursplanung und
 selbstständigen Buchungsversuchen. Sie benötigt weder die VeniceBeach-App
 noch einen eigenen Server. Android 0.15.2 bleibt die aktuelle Android-Hauptversion.
 
-**Status:** Der Swift-Buchungskern kompiliert unter Swift 6.2/Linux; 20 Tests
-bestehen. Die App-Quelldateien sind auf Swift-Syntax geprüft, das Xcode-Projekt
-und seine Verweise sind als Property List validiert. Ein Xcode-/Simulator-Build,
-Apple-Signierung, Keychain-Gerätetest und echte Buchung stehen noch aus.
-Die Linux-Prüfung ist kein Nachweis, dass die iOS-App bereits installierbar ist.
+**Status:** Der Swift-Buchungskern ist mit 20 Tests geprüft. Am 7. November 2026
+war auch der erste macOS-Cloud-Build erfolgreich: Kern-Tests, Simulator-Build,
+iPhone-Release-Archiv und Upload der unsignierten IPA bestanden im
+[GitHub-Lauf 42365410242](https://github.com/Wiresheep/VB_auto_kurs_login/actions/runs/42365410242)
+auf Commit `44f33ab`. Apple-Signierung, Keychain-Gerätetest und echte Buchung auf
+einem iPhone stehen weiterhin aus. Die unsignierte IPA ist noch nicht direkt
+installierbar.
 
 ## Was automatisch läuft
 
@@ -99,8 +101,11 @@ den Browser. Ein eigener Server für die laufende App wird nicht eingerichtet.
    **iOS-Buildprotokolle** prüfen. Ein grüner Kern-Test allein beweist noch keinen
    erfolgreichen iPhone-Build.
 
-Der Workflow ist vorbereitet; ein tatsächlicher macOS-Lauf ist hier noch nicht
-nachgewiesen. Ein erfolgreicher Build ersetzt weder Signierung noch Gerätetest.
+Der erste macOS-Lauf ist erfolgreich (siehe Status oben). Die Actions für Checkout
+und Artefakt-Uploads sind auf verifizierte v7-Stände mit Node.js 24 aktualisiert
+und auf deren Commit-SHAs festgelegt; die vorherigen v4-Stände verursachten lediglich
+eine Deprecation-Warnung. Ein neuer Lauf prüft die aktualisierten Actions.
+Ein erfolgreicher Build ersetzt weder Signierung noch Gerätetest.
 Dieses Repository ist öffentlich. Der hier verwendete Standard-macOS-Runner fällt
 unter die kostenlose Actions-Nutzung für öffentliche Repositories. Für private
 Repositories oder größere Runner gelten andere Bedingungen. Der Workflow startet
@@ -130,7 +135,8 @@ cd ios
 ```
 
 Das Skript prüft Xcode ab Version 16, testet das Swift-Paket, validiert die
-Projektverweise und baut die App für den iOS-Simulator ohne Signierung. Dieser Schritt ist hier mangels macOS/Xcode **noch nicht ausgeführt**.
+Projektverweise und baut die App für den iOS-Simulator ohne Signierung. Der macOS-Cloud-Build hat diesen Schritt erfolgreich ausgeführt;
+lokal unter Linux ist der Xcode-Build weiterhin nicht möglich.
 Das Projekt lässt sich direkt mit `open Kursfenster.xcodeproj` öffnen;
 zusätzliche Projektgeneratoren oder externe Swift-Pakete werden nicht benötigt.
 

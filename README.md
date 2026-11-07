@@ -22,8 +22,9 @@ Projekts; die bisherigen Downloads bleiben als Archiv erhalten.
 Unter [ios/](ios/README.md) entsteht ein eigenständiger SwiftUI-Port ohne
 VeniceBeach-App. Er führt Buchungen bei verfügbarer iOS-Hintergrundzeit automatisch
 aus und erlaubt verspätete Versuche. iOS kann die Ausführung auch ganz auslassen.
-Der Kern ist mit 20 Tests geprüft; ein Xcode-Build und iPhone-Gerätetest stehen noch
-aus. Es gibt deshalb noch keine installierbare iOS-Version. Android 0.15.2 bleibt
+Der Kern ist mit 20 Tests geprüft. Simulator- und unsignierter iPhone-Build waren
+im ersten macOS-Cloud-Lauf erfolgreich; Signierung und iPhone-Gerätetest stehen
+noch aus. Es gibt deshalb noch keine direkt installierbare iOS-Version. Android 0.15.2 bleibt
 von diesem Port unberührt.
 
 Für **iPhone 16 und neuer** ist ein Cloud-Build über den manuellen GitHub-Workflow
