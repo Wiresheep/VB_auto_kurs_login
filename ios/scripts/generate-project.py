@@ -32,7 +32,7 @@ for mode in ["Debug", "Release"]:
         "CLANG_ENABLE_MODULES": "YES", "SWIFT_VERSION": "5.0", "IPHONEOS_DEPLOYMENT_TARGET": "17.0", "SDKROOT": "iphoneos"}))
     settings = {"PRODUCT_BUNDLE_IDENTIFIER": "de.wiresheep.kursfenster.ios", "PRODUCT_NAME": "$(TARGET_NAME)",
         "INFOPLIST_FILE": "App/Info.plist", "GENERATE_INFOPLIST_FILE": "NO", "CODE_SIGN_STYLE": "Automatic",
-        "CURRENT_PROJECT_VERSION": "2", "MARKETING_VERSION": "0.1.1", "SWIFT_VERSION": "5.0",
+        "CURRENT_PROJECT_VERSION": "3", "MARKETING_VERSION": "0.1.1", "SWIFT_VERSION": "5.0",
         "SWIFT_OPTIMIZATION_LEVEL": "-Onone" if mode == "Debug" else "-O",
         "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "DEBUG" if mode == "Debug" else "", "SWIFT_EMIT_LOC_STRINGS": "YES",
         "TARGETED_DEVICE_FAMILY": "1,2", "SUPPORTED_PLATFORMS": "iphoneos iphonesimulator", "SUPPORTS_MACCATALYST": "NO",

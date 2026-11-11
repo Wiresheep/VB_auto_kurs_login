@@ -42,7 +42,7 @@ private struct PendingBooking: Identifiable {
                         }
                         DatePicker("Dein Tag", selection: $model.day, in: Date()..., displayedComponents: .date)
                         Button { Task { await model.loadCourses() } } label: {
-                            HStack { Spacer(); if model.busy { ProgressView().tint(.white) }; Text(model.busy ? "Bitte warten …" : "Kurse laden"); Spacer() }
+                            HStack { Spacer(); if model.busy { ProgressView().tint(.white) }; Text(model.busy ? "Bitte warten …" : "Kurse laden"); Spacer() }.foregroundStyle(.white)
                         }.buttonStyle(.borderedProminent).tint(AppColors.buttonFill)
                     }.disabled(model.busy).card()
                     HStack {
@@ -85,7 +85,6 @@ private struct PendingBooking: Identifiable {
                 }.padding(20)
             }
             .background(AppColors.pageBackground)
-            .foregroundStyle(.primary)
             .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Webzugang", systemImage: "person.crop.circle") { showAccount = true } } }
             .sheet(isPresented: $showAccount) { AccountView(model: model) }
             .sheet(item: $pending) { selection in

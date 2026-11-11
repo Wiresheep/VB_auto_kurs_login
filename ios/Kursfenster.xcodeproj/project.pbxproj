@@ -180,7 +180,7 @@
 				"INFOPLIST_FILE" = "App/Info.plist";
 				"GENERATE_INFOPLIST_FILE" = "NO";
 				"CODE_SIGN_STYLE" = "Automatic";
-				"CURRENT_PROJECT_VERSION" = "2";
+				"CURRENT_PROJECT_VERSION" = "3";
 				"MARKETING_VERSION" = "0.1.1";
 				"SWIFT_VERSION" = "5.0";
 				"SWIFT_OPTIMIZATION_LEVEL" = "-Onone";
@@ -216,7 +216,7 @@
 				"INFOPLIST_FILE" = "App/Info.plist";
 				"GENERATE_INFOPLIST_FILE" = "NO";
 				"CODE_SIGN_STYLE" = "Automatic";
-				"CURRENT_PROJECT_VERSION" = "2";
+				"CURRENT_PROJECT_VERSION" = "3";
 				"MARKETING_VERSION" = "0.1.1";
 				"SWIFT_VERSION" = "5.0";
 				"SWIFT_OPTIMIZATION_LEVEL" = "-O";
