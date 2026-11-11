@@ -82,4 +82,35 @@ final class WidgetAPITests: XCTestCase {
             XCTAssertEqual(end - start + 1, Int64(hours * 3600))
         }
     }
+    func testPositiveTimezoneSurvivesProviderFormQueryDecoding() async throws {
+        let data = try fixture("gruenstadt")
+        for (day, offset) in [("2026-11-12T12:00:00Z", "+01:00"), ("2027-04-15T12:00:00Z", "+02:00")] {
+            let transport = ScriptTransport([WidgetResponse(status: 200, data: data)])
+            let api = WidgetAPI(transport: transport)
+            _ = try await api.courses(day: XCTUnwrap(ISO8601DateFormatter().date(from: day)), studioID: 74)
+            let requests = await transport.captured()
+            let query = try XCTUnwrap(URLComponents(url: requests[0].url, resolvingAgainstBaseURL: false)?.percentEncodedQuery)
+            // The provider decodes query parameters as form data: a literal '+' becomes a space.
+            let field = try XCTUnwrap(query.split(separator: "&").first { $0.hasPrefix("timzoneForDayBuckets=") })
+            let value = String(field.dropFirst("timzoneForDayBuckets=".count))
+            XCTAssertFalse(value.contains("+"))
+            XCTAssertEqual(value.replacingOccurrences(of: "+", with: " ").removingPercentEncoding, offset)
+        }
+    }
+    func testCourseReadErrorExposesOnlyHTTPStatusWithoutBooking() async throws {
+        let transport = ScriptTransport([WidgetResponse(status: 422, data: Data("private provider response".utf8))])
+        let api = WidgetAPI(transport: transport)
+        do {
+            _ = try await api.courses(day: Date(), studioID: 74)
+            XCTFail("A rejected request must not be treated as an empty course list")
+        } catch {
+            let failure = try XCTUnwrap(error as? BookingError)
+            XCTAssertEqual(failure, .httpStatus(422))
+            XCTAssertTrue(failure.courseLoadingMessage.contains("HTTP 422"))
+            XCTAssertFalse(failure.courseLoadingMessage.contains("private provider response"))
+        }
+        let requests = await transport.captured()
+        XCTAssertEqual(requests.count, 1)
+        XCTAssertEqual(requests[0].method, "GET")
+    }
 }

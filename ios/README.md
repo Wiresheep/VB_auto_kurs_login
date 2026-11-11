@@ -1,16 +1,36 @@
-# Kursfenster für iOS – Port 0.1.0
+# Kursfenster für iOS – Port 0.1.1
 
 Native SwiftUI-App ab iOS 17 mit Weblogin, Studioauswahl, Kursplanung und
 selbstständigen Buchungsversuchen. Sie benötigt weder die VeniceBeach-App
 noch einen eigenen Server. Android 0.15.2 bleibt die aktuelle Android-Hauptversion.
 
-**Status:** Der Swift-Buchungskern ist mit 20 Tests geprüft. Am 7. November 2026
+**Status:** Der Swift-Buchungskern ist mit 22 Tests geprüft. Am 7. November 2026
 war auch der erste macOS-Cloud-Build erfolgreich: Kern-Tests, Simulator-Build,
 iPhone-Release-Archiv und Upload der unsignierten IPA bestanden im
 [GitHub-Lauf 42365410242](https://github.com/Wiresheep/VB_auto_kurs_login/actions/runs/42365410242)
 auf Commit `44f33ab`. Apple-Signierung, Keychain-Gerätetest und echte Buchung auf
 einem iPhone stehen weiterhin aus. Die unsignierte IPA ist noch nicht direkt
 installierbar.
+
+## Korrekturen in 0.1.1
+
+- Der Kursaufruf kodiert das Pluszeichen der Zeitzone (`+01:00` / `+02:00`) als
+  `%2B`. Der Anbieter darf es beim Auswerten der URL nicht als Leerzeichen lesen.
+  Der Regressionstest prüft Winter- und Sommerzeit mit derselben Dekodierung.
+- Die Oberfläche verwendet zusammenpassende Systemfarben für Hintergrund, Karten
+  und Text. Der Akzent passt sich dem Dunkelmodus an; der hervorgehobene Ladebutton
+  behält eine dunkle Füllung für seine weiße Beschriftung. Auch die Sichtschutzansicht
+  beim App-Wechsel bleibt lesbar.
+- Ladefehler unterscheiden Netzwerk, Zugriffsfehler, HTTP-Status und unerwartete
+  Kursdaten. Antwortinhalte und Zugangsdaten werden nicht in Meldungen übernommen.
+- GitHub Actions erstellt nach Änderungen unter `ios/` auf `main` automatisch einen
+  neuen Build und native iPhone-16-Vorschauen im hellen und dunklen Modus.
+
+Das Artefakt **Kursfenster-iPhone-UNSIGNIERT** aus dem neuesten erfolgreichen
+[iOS-Build](https://github.com/Wiresheep/VB_auto_kurs_login/actions/workflows/ios-build.yml)
+enthält die neue IPA. Beim erneuten persönlichen Signieren dieselbe Apple-ID und
+dieselbe Bundle-ID wie bei 0.1.0 verwenden und die App als Update installieren.
+Die Versionsnummer lässt sich anschließend unter **Webzugang & Einstellungen** prüfen.
 
 ## Was automatisch läuft
 
@@ -88,8 +108,8 @@ den Browser. Ein eigener Server für die laufende App wird nicht eingerichtet.
 
 1. Auf GitHub dieses Repository öffnen und **Actions** wählen.
 2. Links **iOS – Build für iPhone** auswählen und **Run workflow** drücken.
-3. Den Branch **main** wählen und den Lauf starten. Der Workflow wird ausschließlich
-   manuell gestartet; er läuft nicht automatisch bei jedem Push.
+3. Den Branch **main** wählen und den Lauf starten. Bei Änderungen unter `ios/`
+   oder am iOS-Workflow auf `main` startet er zusätzlich automatisch.
 4. Der Lauf zeigt die verwendete Xcode-, Swift- und SDK-Version, testet den Kern,
    baut für den Simulator und erstellt anschließend ein Release-Archiv für ein
    echtes iPhone. Apple-Konto, Zertifikate und Provisioning-Profile werden dafür
@@ -98,7 +118,8 @@ den Browser. Ein eigener Server für die laufende App wird nicht eingerichtet.
    herunterladen. Es enthält `Kursfenster-unsigned.ipa`, eine Prüfsumme und
    Installationshinweise. Die Dateien werden sieben Tage aufbewahrt.
 6. Bei einem Fehler den fehlgeschlagenen Schritt und das Artefakt
-   **iOS-Buildprotokolle** prüfen. Ein grüner Kern-Test allein beweist noch keinen
+   **iOS-Buildprotokolle** prüfen. **Kursfenster-iPhone-Hell-Dunkel** enthält die
+   nativen Simulator-Screenshots ohne Netzabfragen oder Zugangsdaten. Ein grüner Kern-Test allein beweist noch keinen
    erfolgreichen iPhone-Build.
 
 Der erste macOS-Lauf ist erfolgreich (siehe Status oben). Die Actions für Checkout
@@ -108,8 +129,8 @@ eine Deprecation-Warnung. Ein neuer Lauf prüft die aktualisierten Actions.
 Ein erfolgreicher Build ersetzt weder Signierung noch Gerätetest.
 Dieses Repository ist öffentlich. Der hier verwendete Standard-macOS-Runner fällt
 unter die kostenlose Actions-Nutzung für öffentliche Repositories. Für private
-Repositories oder größere Runner gelten andere Bedingungen. Der Workflow startet
-nur manuell und ist auf 30 Minuten begrenzt.
+Repositories oder größere Runner gelten andere Bedingungen. Der Workflow ist auf
+30 Minuten begrenzt und startet manuell oder bei Änderungen an der iOS-App auf `main`.
 
 ### Ohne kostenpflichtiges Apple-Developer-Konto
 
@@ -171,7 +192,7 @@ swift test --package-path ios/KursfensterCore
 swift ios/scripts/validate-project.swift ios
 ```
 
-Die 20 Tests prüfen unter anderem echte 24 Stunden und Studio-Tagesgrenzen über
+Die 22 Tests prüfen unter anderem echte 24 Stunden und Studio-Tagesgrenzen über
 Sommerzeitwechsel, verspätete Ausführung, Wiederholung vor dem Versand, verlorene
 POST-Antworten, Neustart nach Versandmarkierung, Schreibfehler, Ablauf während des
 Versands, gelöschte Pläne, Accountwechsel, OAuth-Formularkodierung, Bearer-Header,

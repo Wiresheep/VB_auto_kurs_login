@@ -60,6 +60,8 @@ public actor WidgetAPI: BookingGateway {
         guard path.hasPrefix("/"), !path.hasPrefix("//"), !path.contains("\\"), !path.contains("#"), !path.contains("?") else { throw BookingError.invalidLink }
         var components = URLComponents(); components.scheme = "https"; components.host = "widget.actinate.com"; components.path = path
         components.queryItems = query + [URLQueryItem(name: "tenant", value: "venicebeach")]
+        // URLComponents permits literal '+', but the provider's form-query decoder treats it as a space.
+        components.percentEncodedQuery = components.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
         guard let url = components.url else { throw BookingError.invalidLink }
         var headers = ["Accept": "application/json"]
         if let token = accessToken { headers["Authorization"] = "Bearer \(token)" }
@@ -79,7 +81,7 @@ public actor WidgetAPI: BookingGateway {
         case 403: throw BookingError.forbidden
         case 400 where path.hasPrefix("/oauth/"), 422 where path.hasPrefix("/oauth/"): throw BookingError.authentication
         case 408, 429, 500...599: throw BookingError.network
-        default: throw BookingError.invalidResponse
+        default: throw BookingError.httpStatus(response.status)
         }
     }
     private static func formBody(_ values: [String: String]) -> Data {

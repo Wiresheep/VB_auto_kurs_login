@@ -46,7 +46,7 @@ import KursfensterCore
             guard selectedStudioID == studio.id, StudioTime.calendar.isDate(day, inSameDayAs: requestedDay) else { return }
             courses = result.filter { $0.isOffered(studioID: studio.id, day: requestedDay, now: Date()) }
                 .filter { (try? $0.joinPath()) != nil }.sorted { $0.start < $1.start }
-        } catch { errorMessage = "Kursplan nicht erreichbar oder unerwartete Antwort. Es wurde nichts gebucht." }
+        } catch { errorMessage = (error as? BookingError ?? .network).courseLoadingMessage + " Es wurde nichts gebucht." }
     }
     func saveAccount(email: String, password: String) async -> Bool {
         guard !busy, let runtime else { return false }

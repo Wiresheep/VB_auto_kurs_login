@@ -2,6 +2,11 @@ name: iOS – Build für iPhone
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'ios/**'
+      - '.github/workflows/ios-build.yml'
 
 permissions:
   contents: read
@@ -29,6 +34,10 @@ jobs:
         shell: bash
         run: ./ios/scripts/verify-on-mac.sh 2>&1 | tee "$RUNNER_TEMP/ios-check.log"
 
+      - name: Helle und dunkle iPhone-Oberfläche aufnehmen
+        shell: bash
+        run: ./ios/scripts/capture-appearance.sh 2>&1 | tee "$RUNNER_TEMP/ios-appearance.log"
+
       - name: Unsignierten iPhone-Build erstellen
         shell: bash
         run: ./ios/scripts/build-unsigned-iphone.sh 2>&1 | tee "$RUNNER_TEMP/ios-device-build.log"
@@ -44,6 +53,15 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+      - name: iPhone-Vorschauen bereitstellen
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7, Node.js 24
+        with:
+          name: Kursfenster-iPhone-Hell-Dunkel
+          path: ios/artifacts/appearance/*.png
+          if-no-files-found: ignore
+          retention-days: 7
+
       - name: Prüfprotokolle bereitstellen
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7, Node.js 24
@@ -51,6 +69,7 @@ jobs:
           name: iOS-Buildprotokolle
           path: |
             ${{ runner.temp }}/ios-check.log
+            ${{ runner.temp }}/ios-appearance.log
             ${{ runner.temp }}/ios-device-build.log
           if-no-files-found: ignore
           retention-days: 7

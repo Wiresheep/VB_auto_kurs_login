@@ -19,15 +19,18 @@ Projekts; die bisherigen Downloads bleiben als Archiv erhalten.
 
 ## iOS-Port
 
+**iOS 0.1.1** korrigiert die Zeitzonen-Kodierung beim Kursladen und die Lesbarkeit
+im Dunkelmodus. [Quellcode-Paket herunterladen](downloads/kursfenster-ios-0.1.1-source.zip).
+
 Unter [ios/](ios/README.md) entsteht ein eigenständiger SwiftUI-Port ohne
 VeniceBeach-App. Er führt Buchungen bei verfügbarer iOS-Hintergrundzeit automatisch
 aus und erlaubt verspätete Versuche. iOS kann die Ausführung auch ganz auslassen.
-Der Kern ist mit 20 Tests geprüft. Simulator- und unsignierter iPhone-Build waren
+Der Kern ist mit 22 Tests geprüft. Simulator- und unsignierter iPhone-Build waren
 im ersten macOS-Cloud-Lauf erfolgreich; Signierung und iPhone-Gerätetest stehen
 noch aus. Es gibt deshalb noch keine direkt installierbare iOS-Version. Android 0.15.2 bleibt
 von diesem Port unberührt.
 
-Für **iPhone 16 und neuer** ist ein Cloud-Build über den manuellen GitHub-Workflow
+Für **iPhone 16 und neuer** ist ein Cloud-Build über den GitHub-Workflow
 **iOS – Build für iPhone** vorbereitet. Er kann auch vom Browser eines älteren Macs
 wie dem MacBook Air 2015 gestartet werden. Der Workflow erzeugt zunächst eine
 **unsignierte** IPA; Signierung und Installation sind ein separater Schritt.

@@ -3,6 +3,22 @@ import Foundation
 public enum BookingError: Error, Equatable, Sendable {
     case network, authentication, forbidden, invalidResponse, changedCourse, unavailableCourse
     case wrongAccount, credentialsChanged, credentialsMissing, credentialsLocked, invalidLink
+    case httpStatus(Int)
+
+    public var courseLoadingMessage: String {
+        switch self {
+        case .network:
+            return "Der Kursplan ist gerade nicht erreichbar. Bitte Internetverbindung prüfen und erneut laden."
+        case .authentication:
+            return "Die Anmeldung wurde abgelehnt. Bitte den Webzugang unter Einstellungen erneut prüfen."
+        case .forbidden:
+            return "Der Anbieter erlaubt den Zugriff auf diesen Kursplan nicht. Bitte Webzugang und Mitgliedschaft prüfen."
+        case .httpStatus(let status):
+            return "Der Anbieter hat die Kursanfrage abgelehnt (HTTP \(status)). Bitte erneut laden und bei wiederholtem Auftreten diesen Fehlercode melden."
+        default:
+            return "Die Antwort des Kursplans konnte nicht gelesen werden. Bitte erneut laden und bei wiederholtem Auftreten Studio und Datum melden."
+        }
+    }
 }
 
 public struct Credentials: Codable, Equatable, Sendable {

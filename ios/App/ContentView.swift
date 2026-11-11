@@ -13,7 +13,7 @@ private struct PendingBooking: Identifiable {
     @State private var showAccount = false
     @State private var pending: PendingBooking?
     @State private var removing: CoursePlan?
-    private let green = Color(red: 0.075, green: 0.459, blue: 0.404)
+    private let green = AppColors.accent
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -43,7 +43,7 @@ private struct PendingBooking: Identifiable {
                         DatePicker("Dein Tag", selection: $model.day, in: Date()..., displayedComponents: .date)
                         Button { Task { await model.loadCourses() } } label: {
                             HStack { Spacer(); if model.busy { ProgressView().tint(.white) }; Text(model.busy ? "Bitte warten …" : "Kurse laden"); Spacer() }
-                        }.buttonStyle(.borderedProminent)
+                        }.buttonStyle(.borderedProminent).tint(AppColors.buttonFill)
                     }.disabled(model.busy).card()
                     HStack {
                         Text("Deine Kursauswahl").font(.title2.bold())
@@ -84,7 +84,8 @@ private struct PendingBooking: Identifiable {
                     }.frame(maxWidth: .infinity, alignment: .leading).card()
                 }.padding(20)
             }
-            .background(Color(red: 0.953, green: 0.965, blue: 0.957))
+            .background(AppColors.pageBackground)
+            .foregroundStyle(.primary)
             .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Webzugang", systemImage: "person.crop.circle") { showAccount = true } } }
             .sheet(isPresented: $showAccount) { AccountView(model: model) }
             .sheet(item: $pending) { selection in
@@ -140,6 +141,10 @@ private struct PendingBooking: Identifiable {
                 Section {
                     Button("Webzugang löschen", role: .destructive) { deleting = true }
                 } footer: { Text("Geplante Buchungen bleiben gespeichert, benötigen anschließend erneut denselben Webzugang. Ein anderer Account bucht keine Pläne des bisherigen Accounts.") }
+                Section {
+                    Text("Kursfenster \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "")")
+                        .foregroundStyle(.secondary)
+                }
             }
             .navigationTitle("Webzugang").toolbar { ToolbarItem(placement: .cancellationAction) { Button("Fertig") { password = ""; dismiss() } } }
             .onAppear { email = model.email }
@@ -154,5 +159,5 @@ private struct PendingBooking: Identifiable {
 }
 
 private extension View {
-    func card() -> some View { padding(18).background(.background, in: RoundedRectangle(cornerRadius: 20)) }
+    func card() -> some View { padding(18).background(AppColors.cardBackground, in: RoundedRectangle(cornerRadius: 20)) }
 }
